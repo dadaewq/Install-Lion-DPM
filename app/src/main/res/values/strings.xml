@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Install Lion-DPM</string>
+    <string name="start_install">Start installing</string>
+    <string name="failed_read">Reading apk failed</string>
+    <string name="success_install">Installed succeed</string>
+    <string name="failed_install">Installed failed</string>
+    <string name="dialog_title">Confirm installation</string>
+    <string name="items">No longer confirmed in the future</string>
+    <string name="start_deactivate">Deactivate</string>
+    <string name="start_activating">Activating</string>
+    <string name="success_deactivate">Cancel succeed</string>
+    <string name="failed_deactivate">Unable to deactivate</string>
+    <string name="is_Admin">Is the Device Owner Currently</string>
+    <string name="not_Admin">Not the Device Owner Currently</string>
+    <string name="show_OrgName">Organization Name</string>
+    <string name="release_DPM">Release Device Owner Permission?</string>
+    <string name="release_tip">This operation is irrevocable</string>
+    <string name="exit_tip">Press Back Again to Exit</string>
+    <string name="copy_cmd">(Click the commands to copy)</string>
+
+</resources>
