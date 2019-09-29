@@ -2,9 +2,10 @@
     <string name="app_name">Install Lion-DPM</string>
     <string name="start_install">Start installing</string>
     <string name="failed_read">Reading apk failed</string>
+    <string name="failed_prase">Unable to parse</string>
     <string name="success_install">Installed succeed</string>
     <string name="failed_install">Installed failed</string>
-    <string name="dialog_title">Confirm installation</string>
+    <string name="dialog_install_title">Confirm installation</string>
     <string name="items">No longer confirmed in the future</string>
     <string name="start_deactivate">Deactivate</string>
     <string name="start_activating">Activating</string>

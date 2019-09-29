@@ -3,9 +3,10 @@
     <string name="app_name">安装狮-DPM</string>
     <string name="start_install">开始安装</string>
     <string name="failed_read">读取apk失败</string>
+    <string name="failed_prase">无法解析</string>
     <string name="success_install">安装成功</string>
     <string name="failed_install">安装失败</string>
-    <string name="dialog_title">确认安装</string>
+    <string name="dialog_install_title">确认安装</string>
     <string name="items">以后不再确认</string>
     <string name="start_deactivate">取消激活</string>
     <string name="start_activating">激活中</string>

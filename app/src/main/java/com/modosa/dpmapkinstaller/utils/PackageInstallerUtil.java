@@ -37,8 +37,6 @@ public class PackageInstallerUtil {
                 public void onReceive(Context context, Intent intent) {
                     app.unregisterReceiver(this);
                     int statusCode = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE);
-                    String statusMessage = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
-                    String packageName = intent.getStringExtra(PackageInstaller.EXTRA_PACKAGE_NAME);
                     o.set(PackageInstaller.STATUS_SUCCESS == statusCode);
                     synchronized (o) {
                         o.notify();
@@ -49,7 +47,9 @@ public class PackageInstallerUtil {
             PackageInstaller packageInstaller = app.getPackageManager().getPackageInstaller();
             PackageInstaller.SessionParams params = new PackageInstaller.SessionParams(
                     PackageInstaller.SessionParams.MODE_FULL_INSTALL);
-            if (!TextUtils.isEmpty(packageName)) params.setAppPackageName(packageName);
+            if (!TextUtils.isEmpty(packageName)) {
+                params.setAppPackageName(packageName);
+            }
             // set params
             int sessionId = packageInstaller.createSession(params);
             PackageInstaller.Session session = packageInstaller.openSession(sessionId);
