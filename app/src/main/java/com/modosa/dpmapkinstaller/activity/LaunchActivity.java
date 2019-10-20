@@ -25,7 +25,6 @@ public class LaunchActivity extends Activity {
             Log.d("PACKAGE_NAME ==>", packagename);
             Intent intent = getPackageManager().getLaunchIntentForPackage(packagename);
             startActivity(intent);
-            finish();
         } catch (Exception e) {
             Toast.makeText(this, e + "", Toast.LENGTH_LONG).show();
         }
