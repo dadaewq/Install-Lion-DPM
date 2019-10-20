@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void init() {
         mDevicePolicyManager = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
-        boolean canmod = Build.VERSION.SDK_INT > 23;
+        boolean canmod = Build.VERSION.SDK_INT > Build.VERSION_CODES.M;
         button = findViewById(R.id.button);
         textView = findViewById(R.id.textView);
         cmd = findViewById(R.id.cmd);

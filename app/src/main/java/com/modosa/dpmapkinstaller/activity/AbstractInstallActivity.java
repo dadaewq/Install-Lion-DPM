@@ -105,7 +105,7 @@ public abstract class AbstractInstallActivity extends Activity {
                 pkgInfo.applicationInfo.sourceDir = apkPath;
                 pkgInfo.applicationInfo.publicSourceDir = apkPath;
                 return new String[]{pkgInfo.versionName,
-                        Build.VERSION.SDK_INT < 28 ? Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode())};
+                        Build.VERSION.SDK_INT < Build.VERSION_CODES.P ? Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode())};
             } else {
                 return null;
             }
@@ -434,7 +434,7 @@ public abstract class AbstractInstallActivity extends Activity {
                 pkgInfo.applicationInfo.publicSourceDir = apkPath;
 
                 return new String[]{pm.getApplicationLabel(pkgInfo.applicationInfo).toString(), pkgInfo.packageName, pkgInfo.versionName,
-                        Build.VERSION.SDK_INT < 28 ?
+                        Build.VERSION.SDK_INT < Build.VERSION_CODES.P ?
                                 Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode()), FileSizeUtils.getAutoFolderOrFileSize(apkPath)};
             }
             return null;
