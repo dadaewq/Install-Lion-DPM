@@ -75,6 +75,36 @@ public class PackageInstallerUtil {
     }
 
     @SuppressLint("MissingPermission")
+    public static boolean uninstallPackage(Context context, String packageName) {
+        final AtomicBoolean o = new AtomicBoolean();
+
+        final String name = context.getPackageName() + "_uninstall_" + System.currentTimeMillis();
+        Context app = context.getApplicationContext();
+        app.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                app.unregisterReceiver(this);
+                int statusCode = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE);
+                o.set(PackageInstaller.STATUS_SUCCESS == statusCode);
+                synchronized (o) {
+                    o.notify();
+                }
+            }
+        }, new IntentFilter(name));
+
+        PackageInstaller mPackageInstaller = app.getPackageManager().getPackageInstaller();
+        mPackageInstaller.uninstall(packageName, createIntentSender(app, name.hashCode(), name));
+
+        synchronized (o) {
+            try {
+                o.wait();
+                return o.get();
+            } catch (InterruptedException e) {
+                return false;
+            }
+        }
+    }
+
 
     private static IntentSender createIntentSender(Context context, int sessionId, String name) {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(

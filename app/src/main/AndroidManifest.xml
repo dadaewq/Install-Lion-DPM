@@ -4,6 +4,7 @@
     package="com.modosa.dpmapkinstaller">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -12,9 +13,10 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:theme="@android:style/Theme.Translucent.NoTitleBar"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:launchMode="singleInstance"
             android:theme="@android:style/Theme.DeviceDefault.Dialog">
             <intent-filter>
@@ -24,11 +26,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".InstallActivity"
+            android:name=".activity.InstallActivity"
             android:enabled="true"
             android:excludeFromRecents="true"
             android:noHistory="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            android:theme="@android:style/Theme.DeviceDefault.Dialog.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.INSTALL_PACKAGE" />
@@ -38,6 +40,38 @@
                 <data android:scheme="file" />
                 <data android:scheme="content" />
                 <data android:mimeType="application/vnd.android.package-archive" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DELETE" />
+                <action android:name="android.intent.action.UNINSTALL_PACKAGE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.LaunchActivity"
+            android:enabled="true"
+            android:exported="false"
+            android:label="@string/launch_name"
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SHOW_APP_INFO" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.ShowAppInfoActivity"
+            android:enabled="true"
+            android:label="@string/launch_name"
+            android:launchMode="singleTop"
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SHOW_APP_INFO" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 

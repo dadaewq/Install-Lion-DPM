@@ -1,22 +1,32 @@
 <resources>
     <string name="app_name">Install Lion-DPM</string>
-    <string name="start_install">Start installing</string>
-    <string name="failed_read">Reading apk failed</string>
+    <string name="start_install">Start installing  %1$s</string>
     <string name="failed_prase">Unable to parse</string>
-    <string name="success_install">Installed succeed</string>
+    <string name="failed_read">Reading apk failed</string>
+    <string name="success_install"> %1$s Installed succeed</string>
     <string name="failed_install">Installed failed</string>
-    <string name="dialog_install_title">Confirm installation</string>
-    <string name="items">No longer confirmed in the future</string>
+    <string name="success_uninstall">%1$s Uninstalled succeed</string>
+    <string name="failed_uninstall">%1$s Uninstalled failed</string>
+    <string name="dialog_install_title">Installation</string>
+    <string name="dialog_uninstall_title">Uninstallation</string>
+    <string name="message_size">Size：%1$s</string>
+    <string name="message_name">Name: %1$s</string>
+    <string name="message_packagename">Package Name: %1$s</string>
+    <string name="message_version">Version: %1$s (%2$s)</string>
+    <string name="message_version_existed">Existed: %1$s (%2$s)</string>
+    <string name="message_uninstalConfirm">This operation is irrevocable\nConfirm uninstallation?</string>
+    <string name="always_allow">Always Allow %1$s</string>
+    <string name="installsource_unkonwn">Unknown installation source</string>
     <string name="start_deactivate">Deactivate</string>
     <string name="start_activating">Activating</string>
     <string name="success_deactivate">Cancel succeed</string>
     <string name="failed_deactivate">Unable to deactivate</string>
-    <string name="is_Admin">Is the Device Owner Currently</string>
-    <string name="not_Admin">Not the Device Owner Currently</string>
+    <string name="isDeviceOwner">✔ Is the Device Owner Currently</string>
+    <string name="notDeviceOwner">✘ Not the Device Owner Currently\n(Click the commands to copy)</string>
     <string name="show_OrgName">Organization Name</string>
     <string name="release_DPM">Release Device Owner Permission?</string>
     <string name="release_tip">This operation is irrevocable</string>
     <string name="exit_tip">Press Back Again to Exit</string>
-    <string name="copy_cmd">(Click the commands to copy)</string>
+    <string name="launch_name">Run App</string>
 
 </resources>

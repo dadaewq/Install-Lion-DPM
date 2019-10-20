@@ -1,4 +1,4 @@
-package com.modosa.dpmapkinstaller;
+package com.modosa.dpmapkinstaller.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -19,6 +19,8 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
+import com.modosa.dpmapkinstaller.R;
+
 import java.util.Objects;
 
 
@@ -36,6 +38,7 @@ public class MainActivity extends Activity {
     private long exitTime = 0;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +74,7 @@ public class MainActivity extends Activity {
         cmd = findViewById(R.id.cmd);
         show_OrgName = findViewById(R.id.show_OrgName);
 
-        textView.setText("✘ " + getString(R.string.not_Admin) + "\n" + getString(R.string.copy_cmd));
+        textView.setText(getString(R.string.notDeviceOwner));
         cmd.setText(CMD);
         cmd.setOnClickListener(view -> copyCMD());
         button.setText(getString(R.string.start_deactivate));
@@ -86,14 +89,14 @@ public class MainActivity extends Activity {
 
         componentName = new ComponentName(getPackageName(), getPackageName() + ".receiver.AdminReceiver");
 
-        if (isAdmin()) {
+        if (isDeviceOwner()) {
             if (canmod) {
                 mDevicePolicyManager.setOrganizationName(componentName, sharedPreferences.getString("orgName", ""));
                 show_OrgName.setVisibility(View.VISIBLE);
                 showname = getString(R.string.show_OrgName) + ":" + sharedPreferences.getString("orgName", "");
                 show_OrgName.setText(showname);
             }
-            textView.setText("✔ " + getString(R.string.is_Admin));
+            textView.setText(getString(R.string.isDeviceOwner));
             button.setVisibility(View.VISIBLE);
 
         } else {
@@ -102,7 +105,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void showToast(final String text) {
+    private void showToast0(final String text) {
         runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_SHORT).show());
     }
 
@@ -113,7 +116,7 @@ public class MainActivity extends Activity {
         Toast.makeText(getApplicationContext(), CMD, Toast.LENGTH_SHORT).show();
     }
 
-    private boolean isAdmin() {
+    private boolean isDeviceOwner() {
         return mDevicePolicyManager.isDeviceOwnerApp(getPackageName());
     }
 
@@ -145,14 +148,14 @@ public class MainActivity extends Activity {
                 .setMessage(R.string.release_tip)
                 .setNegativeButton(android.R.string.no, null)
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    if (cancelAdmin()) {
+                    if (clearDeviceOwner()) {
                         show_OrgName.setVisibility(View.GONE);
-                        textView.setText("✘ " + getString(R.string.not_Admin) + "\n" + getString(R.string.copy_cmd));
+                        textView.setText(getString(R.string.notDeviceOwner));
                         cmd.setVisibility(View.VISIBLE);
                         button.setVisibility(View.GONE);
-                        showToast(getString(R.string.success_deactivate));
+                        showToast0(getString(R.string.success_deactivate));
                     } else {
-                        showToast(getString(R.string.failed_deactivate));
+                        showToast0(getString(R.string.failed_deactivate));
                     }
                 });
         builder.show();
@@ -160,10 +163,10 @@ public class MainActivity extends Activity {
 
     }
 
-    private boolean cancelAdmin() {
-        if (isAdmin()) {
+    private boolean clearDeviceOwner() {
+        if (isDeviceOwner()) {
             mDevicePolicyManager.clearDeviceOwnerApp(getPackageName());
-            return !isAdmin();
+            return !isDeviceOwner();
         } else {
             return false;
         }

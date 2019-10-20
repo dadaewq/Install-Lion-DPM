@@ -1,22 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">安装狮-DPM</string>
-    <string name="start_install">开始安装</string>
-    <string name="failed_read">读取apk失败</string>
+    <string name="start_install">开始安装  %1$s</string>
     <string name="failed_prase">无法解析</string>
-    <string name="success_install">安装成功</string>
+    <string name="failed_read">读取apk失败</string>
+    <string name="success_install"> %1$s 安装成功</string>
     <string name="failed_install">安装失败</string>
-    <string name="dialog_install_title">确认安装</string>
-    <string name="items">以后不再确认</string>
+    <string name="success_uninstall">%1$s 卸载成功</string>
+    <string name="failed_uninstall">%1$s 卸载失败</string>
+    <string name="dialog_install_title">安装</string>
+    <string name="dialog_uninstall_title">卸载</string>
+    <string name="message_size">大小：%1$s</string>
+    <string name="message_name">名称：%1$s</string>
+    <string name="message_packagename">包名：%1$s</string>
+    <string name="message_version">版本：%1$s(%2$s)</string>
+    <string name="message_version_existed">现存：%1$s(%2$s)</string>
+    <string name="message_uninstalConfirm">此操作不可撤销\n确认卸载吗?</string>
+    <string name="always_allow">总是允许 %1$s</string>
+    <string name="installsource_unkonwn">未知安装来源</string>
     <string name="start_deactivate">取消激活</string>
     <string name="start_activating">激活中</string>
     <string name="success_deactivate">解除成功</string>
     <string name="failed_deactivate">无法取消</string>
-    <string name="is_Admin">当前是 Device Owner</string>
-    <string name="not_Admin">当前不是 Device Owner</string>
+    <string name="isDeviceOwner">✔ 当前是 Device Owner</string>
+    <string name="notDeviceOwner">✘ 当前不是 Device Owner\n(点击命令可复制)</string>
     <string name="show_OrgName">对外显示的组织名称</string>
     <string name="release_DPM">解除设备管理员权限?</string>
     <string name="release_tip">此操作不可撤销</string>
     <string name="exit_tip">再按一次退出程序</string>
-    <string name="copy_cmd">(点击命令可复制)</string>
+    <string name="launch_name">启动应用</string>
 </resources>
