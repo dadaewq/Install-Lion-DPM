@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.util.Objects;
 
 
@@ -46,6 +47,7 @@ public abstract class AbstractInstallActivity extends Activity {
     boolean istemp = false;
     String[] apkinfo;
     String pkgLable;
+    StringBuilder alertDialogMessage;
     private String[] source;
     private Uri uri;
     private boolean needrequest;
@@ -117,8 +119,11 @@ public abstract class AbstractInstallActivity extends Activity {
         String[] version = getExistedVersion(pkgname);
 
         pkgLable = ApplicationLabelUtils.getApplicationLabel(this, null, null, pkgname);
+        if (ApplicationLabelUtils.UNINSTALLED.equals(pkgLable)) {
+            pkgLable = "Uninstalled";
+        }
 
-        StringBuilder alertDialogMessage = new StringBuilder();
+        alertDialogMessage = new StringBuilder();
         alertDialogMessage
                 .append(
                         String.format(
@@ -144,15 +149,9 @@ public abstract class AbstractInstallActivity extends Activity {
                     .append(nl);
         }
 
-        alertDialogMessage
-                .append(nl)
-                .append(nl)
-                .append(getString(R.string.message_uninstalConfirm));
-
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.dialog_uninstall_title));
-        builder.setMessage(alertDialogMessage);
+        builder.setMessage(alertDialogMessage + nl + nl + getString(R.string.message_uninstalConfirm));
         builder.setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
             startUninstall(pkgname);
             finish();
@@ -181,7 +180,7 @@ public abstract class AbstractInstallActivity extends Activity {
 
             String[] version = getExistedVersion(apkinfo[1]);
 
-            StringBuilder alertDialogMessage = new StringBuilder();
+            alertDialogMessage = new StringBuilder();
             alertDialogMessage
                     .append(nl)
                     .append(
@@ -269,27 +268,46 @@ public abstract class AbstractInstallActivity extends Activity {
 
     }
 
-    private String[] checkInstallSource() {
+    private String reflectGetReferrer() {
+        try {
+            Class activityClass = Class.forName("android.app.Activity");
 
+            Field refererField = activityClass.getDeclaredField("mReferrer");
+            refererField.setAccessible(true);
+            return (String) refererField.get(this);
+        } catch (ClassNotFoundException | IllegalAccessException | NoSuchFieldException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String[] checkInstallSource() {
         final String fromPkgLabel;
         final String fromPkgName;
 
-        Uri referrerUri = getReferrer();
-        if (referrerUri == null || !"android-app".equals(referrerUri.getScheme())) {
-            fromPkgLabel = ILLEGALPKGNAME;
-            fromPkgName = ILLEGALPKGNAME;
+        String referrer = reflectGetReferrer();
+        if (referrer != null) {
+            fromPkgName = referrer;
         } else {
-            fromPkgName = referrerUri.getEncodedSchemeSpecificPart().substring(2);
-            String refererPackageLabel =
-                    ApplicationLabelUtils.getApplicationLabel(this, null, null, fromPkgName);
-            if ("已卸载".equals(refererPackageLabel)) {
-                fromPkgLabel = fromPkgName;
+            Uri referrerUri = getReferrer();
+            if (referrerUri == null || !"android-app".equals(referrerUri.getScheme())) {
+                fromPkgLabel = ILLEGALPKGNAME;
+                fromPkgName = ILLEGALPKGNAME;
+                return new String[]{fromPkgName, fromPkgLabel};
             } else {
-                fromPkgLabel = refererPackageLabel;
+                fromPkgName = referrerUri.getEncodedSchemeSpecificPart().substring(2);
             }
+        }
+        String refererPackageLabel =
+                ApplicationLabelUtils.getApplicationLabel(this, null, null, fromPkgName);
+        if (ApplicationLabelUtils.UNINSTALLED.equals(refererPackageLabel)) {
+            fromPkgLabel = ILLEGALPKGNAME;
+        } else {
+            fromPkgLabel = refererPackageLabel;
         }
         return new String[]{fromPkgName, fromPkgLabel};
     }
+
 
     @Override
     public void onResume() {
@@ -314,7 +332,6 @@ public abstract class AbstractInstallActivity extends Activity {
         }
 
     }
-
 
     private String preInstall() {
         String apkPath = null;

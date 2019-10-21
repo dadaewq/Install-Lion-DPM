@@ -4,9 +4,9 @@
     <string name="failed_prase">Unable to parse</string>
     <string name="failed_read">Reading apk failed</string>
     <string name="success_install"> %1$s Installed succeed</string>
-    <string name="failed_install">Installed failed</string>
+    <string name="failed_install">%1$s Installed failed\n%2$s</string>
     <string name="success_uninstall">%1$s Uninstalled succeed</string>
-    <string name="failed_uninstall">%1$s Uninstalled failed</string>
+    <string name="failed_uninstall">%1$s Uninstalled failed\n%2$s</string>
     <string name="dialog_install_title">Installation</string>
     <string name="dialog_uninstall_title">Uninstallation</string>
     <string name="message_size">Size：%1$s</string>
@@ -27,6 +27,7 @@
     <string name="release_DPM">Release Device Owner Permission?</string>
     <string name="release_tip">This operation is irrevocable</string>
     <string name="exit_tip">Press Back Again to Exit</string>
+    <string name="installer_device">Device</string>
     <string name="launch_name">Run App</string>
-
+    <string name="unknown">Unknown</string>
 </resources>

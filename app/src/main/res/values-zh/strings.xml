@@ -5,9 +5,9 @@
     <string name="failed_prase">无法解析</string>
     <string name="failed_read">读取apk失败</string>
     <string name="success_install"> %1$s 安装成功</string>
-    <string name="failed_install">安装失败</string>
+    <string name="failed_install">%1$s 安装失败,错误已复制到剪贴板\n%2$s</string>
     <string name="success_uninstall">%1$s 卸载成功</string>
-    <string name="failed_uninstall">%1$s 卸载失败</string>
+    <string name="failed_uninstall">%1$s 卸载失败,错误已复制到剪贴板\n%2$s</string>
     <string name="dialog_install_title">安装</string>
     <string name="dialog_uninstall_title">卸载</string>
     <string name="message_size">大小：%1$s</string>
@@ -28,5 +28,7 @@
     <string name="release_DPM">解除设备管理员权限?</string>
     <string name="release_tip">此操作不可撤销</string>
     <string name="exit_tip">再按一次退出程序</string>
+    <string name="installer_device">设备</string>
     <string name="launch_name">启动应用</string>
+    <string name="unknown">未知</string>
 </resources>

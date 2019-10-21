@@ -13,6 +13,8 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
+import com.modosa.dpmapkinstaller.R;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,11 +27,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class PackageInstallerUtil {
 
-    public static boolean installPackage(Context context, Uri uri, @Nullable String packageName) throws IOException {
+    public static String installPackage(Context context, Uri uri, @Nullable String packageName) throws IOException {
         try (InputStream in = context.getContentResolver().openInputStream(uri)) {
 
             final AtomicBoolean o = new AtomicBoolean();
-
+            final StringBuilder stringBuilder = new StringBuilder();
             final String name = context.getPackageName() + "_install_" + System.currentTimeMillis();
             Context app = context.getApplicationContext();
             app.registerReceiver(new BroadcastReceiver() {
@@ -37,6 +39,17 @@ public class PackageInstallerUtil {
                 public void onReceive(Context context, Intent intent) {
                     app.unregisterReceiver(this);
                     int statusCode = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE);
+                    if (statusCode != PackageInstaller.STATUS_SUCCESS) {
+                        String message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
+
+                        if (TextUtils.isEmpty(message)) {
+                            stringBuilder.append(context.getString(R.string.unknown));
+                        } else {
+                            stringBuilder.append(message);
+                        }
+
+                    }
+
                     o.set(PackageInstaller.STATUS_SUCCESS == statusCode);
                     synchronized (o) {
                         o.notify();
@@ -66,18 +79,22 @@ public class PackageInstallerUtil {
             synchronized (o) {
                 try {
                     o.wait();
-                    return o.get();
+                    if (o.get()) {
+                        return null;
+                    } else {
+                        return stringBuilder.toString();
+                    }
                 } catch (InterruptedException e) {
-                    return false;
+                    return stringBuilder.append("\n").toString();
                 }
             }
         }
     }
 
     @SuppressLint("MissingPermission")
-    public static boolean uninstallPackage(Context context, String packageName) {
+    public static String uninstallPackage(Context context, String packageName) {
         final AtomicBoolean o = new AtomicBoolean();
-
+        final StringBuilder stringBuilder = new StringBuilder();
         final String name = context.getPackageName() + "_uninstall_" + System.currentTimeMillis();
         Context app = context.getApplicationContext();
         app.registerReceiver(new BroadcastReceiver() {
@@ -85,6 +102,14 @@ public class PackageInstallerUtil {
             public void onReceive(Context context, Intent intent) {
                 app.unregisterReceiver(this);
                 int statusCode = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE);
+                if (statusCode != PackageInstaller.STATUS_SUCCESS) {
+                    String message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
+                    if (TextUtils.isEmpty(message)) {
+                        stringBuilder.append(context.getString(R.string.unknown));
+                    } else {
+                        stringBuilder.append(message);
+                    }
+                }
                 o.set(PackageInstaller.STATUS_SUCCESS == statusCode);
                 synchronized (o) {
                     o.notify();
@@ -93,14 +118,23 @@ public class PackageInstallerUtil {
         }, new IntentFilter(name));
 
         PackageInstaller mPackageInstaller = app.getPackageManager().getPackageInstaller();
-        mPackageInstaller.uninstall(packageName, createIntentSender(app, name.hashCode(), name));
+        try {
+            mPackageInstaller.uninstall(packageName, createIntentSender(app, name.hashCode(), name));
+        } catch (Exception e) {
+            return e.toString();
+        }
+
 
         synchronized (o) {
             try {
                 o.wait();
-                return o.get();
+                if (o.get()) {
+                    return null;
+                } else {
+                    return stringBuilder.toString();
+                }
             } catch (InterruptedException e) {
-                return false;
+                return stringBuilder.append("\n").toString();
             }
         }
     }

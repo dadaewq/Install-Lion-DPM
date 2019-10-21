@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import static android.content.pm.PackageManager.GET_UNINSTALLED_PACKAGES;
 
 public final class ApplicationLabelUtils {
+    public static final String UNINSTALLED = "IL^&UninstalledPN*@!128`+=：:,.[";
 
     public static String getApplicationLabel(Context context, PackageManager packageManager, ApplicationInfo applicationInfo, String pkgName) {
 
@@ -26,7 +27,7 @@ public final class ApplicationLabelUtils {
                 return name;
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
-                return "Uninstalled";
+                return UNINSTALLED;
             } catch (Exception e) {
                 e.printStackTrace();
                 return pkgName;

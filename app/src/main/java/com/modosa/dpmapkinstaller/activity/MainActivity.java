@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 
 import com.modosa.dpmapkinstaller.R;
+import com.modosa.dpmapkinstaller.receiver.AdminReceiver;
 
 import java.util.Objects;
 
@@ -37,14 +38,12 @@ public class MainActivity extends Activity {
     private Button button;
     private long exitTime = 0;
 
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init();
-
     }
 
     @Override
@@ -65,15 +64,14 @@ public class MainActivity extends Activity {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void init() {
         mDevicePolicyManager = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
-        boolean canmod = Build.VERSION.SDK_INT > Build.VERSION_CODES.M;
+        boolean avsetName = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
         button = findViewById(R.id.button);
         textView = findViewById(R.id.textView);
         cmd = findViewById(R.id.cmd);
         show_OrgName = findViewById(R.id.show_OrgName);
-
         textView.setText(getString(R.string.notDeviceOwner));
         cmd.setText(CMD);
         cmd.setOnClickListener(view -> copyCMD());
@@ -86,11 +84,10 @@ public class MainActivity extends Activity {
 
         sharedPreferences = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE);
 
-
-        componentName = new ComponentName(getPackageName(), getPackageName() + ".receiver.AdminReceiver");
+        componentName = AdminReceiver.getComponentName(this);
 
         if (isDeviceOwner()) {
-            if (canmod) {
+            if (avsetName) {
                 mDevicePolicyManager.setOrganizationName(componentName, sharedPreferences.getString("orgName", ""));
                 show_OrgName.setVisibility(View.VISIBLE);
                 showname = getString(R.string.show_OrgName) + ":" + sharedPreferences.getString("orgName", "");
@@ -120,7 +117,7 @@ public class MainActivity extends Activity {
         return mDevicePolicyManager.isDeviceOwnerApp(getPackageName());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void editOrgName() {
         String getOrgName = sharedPreferences.getString("orgName", "");
 
@@ -149,6 +146,10 @@ public class MainActivity extends Activity {
                 .setNegativeButton(android.R.string.no, null)
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     if (clearDeviceOwner()) {
+                        try {
+                            mDevicePolicyManager.removeActiveAdmin(componentName);
+                        } catch (Exception ignore) {
+                        }
                         show_OrgName.setVisibility(View.GONE);
                         textView.setText(getString(R.string.notDeviceOwner));
                         cmd.setVisibility(View.VISIBLE);
@@ -171,5 +172,6 @@ public class MainActivity extends Activity {
             return false;
         }
     }
+
 
 }
