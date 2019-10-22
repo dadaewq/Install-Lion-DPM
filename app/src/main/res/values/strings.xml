@@ -4,9 +4,9 @@
     <string name="failed_prase">Unable to parse</string>
     <string name="failed_read">Reading apk failed</string>
     <string name="success_install"> %1$s Installed succeed</string>
-    <string name="failed_install">%1$s Installed failed\n%2$s</string>
+    <string name="failed_install">%1$s Installed failed,The error has been copied to the clipboard\n%2$s</string>
     <string name="success_uninstall">%1$s Uninstalled succeed</string>
-    <string name="failed_uninstall">%1$s Uninstalled failed\n%2$s</string>
+    <string name="failed_uninstall">%1$s Uninstalled failed,The error has been copied to the clipboard\n%2$s</string>
     <string name="dialog_install_title">Installation</string>
     <string name="dialog_uninstall_title">Uninstallation</string>
     <string name="message_size">Size：%1$s</string>

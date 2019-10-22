@@ -92,10 +92,7 @@ public class InstallActivity extends AbstractInstallActivity {
                 if (result == null) {
                     showToast0(String.format(getString(R.string.success_uninstall), pkgLable));
                 } else {
-                    deleteCache();
-                    String err = String.format("%s: %s %s | %s | Android %s \n\n", getString(R.string.installer_device), Build.BRAND, Build.MODEL, isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE) +
-                            String.format(alertDialogMessage + "\n%s", result);
-                    copyErr(err);
+                    copyErr(String.format("%s: %s %s | %s | Android %s \n\n%s\n%s", getString(R.string.installer_device), Build.BRAND, Build.MODEL, isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE, alertDialogMessage, result));
                     showToast1(String.format(getString(R.string.failed_uninstall), pkgLable, result));
                 }
             } catch (Exception e) {

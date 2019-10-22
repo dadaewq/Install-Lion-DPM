@@ -95,8 +95,7 @@ public abstract class AbstractInstallActivity extends Activity {
         ApplicationInfo applicationInfo = null;
         try {
             applicationInfo = pm.getApplicationInfo(pkgname, 0);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignore) {
         }
         if (applicationInfo == null) {
             return null;
