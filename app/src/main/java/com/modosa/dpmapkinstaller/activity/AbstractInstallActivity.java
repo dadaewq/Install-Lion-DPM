@@ -397,17 +397,10 @@ public abstract class AbstractInstallActivity extends Activity {
         return (permissionRead == 0);
     }
 
-
     void copyErr(String Err) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clipData = ClipData.newPlainText(null, Err);
         Objects.requireNonNull(clipboard).setPrimaryClip(clipData);
-    }
-
-    void deleteCache() {
-        if (istemp) {
-            deleteSingleFile(apkFile);
-        }
     }
 
     void showToast0(final String text) {
@@ -438,6 +431,12 @@ public abstract class AbstractInstallActivity extends Activity {
             e.printStackTrace();
         }
         return tempFile.getAbsolutePath();
+    }
+
+    void deleteCache() {
+        if (istemp) {
+            deleteSingleFile(apkFile);
+        }
     }
 
     private void deleteSingleFile(File file) {
