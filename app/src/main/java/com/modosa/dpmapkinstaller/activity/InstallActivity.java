@@ -1,10 +1,6 @@
 package com.modosa.dpmapkinstaller.activity;
 
-
 import android.annotation.SuppressLint;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
@@ -15,11 +11,8 @@ import com.modosa.dpmapkinstaller.R;
 import com.modosa.dpmapkinstaller.utils.PackageInstallerUtil;
 
 import java.io.File;
-import java.util.Objects;
-
 
 public class InstallActivity extends AbstractInstallActivity {
-    private File apkFile;
 
     @SuppressLint("PrivateApi")
     private static String getSystemProperty() {
@@ -70,18 +63,6 @@ public class InstallActivity extends AbstractInstallActivity {
         }
     }
 
-    private void copyErr(String Err) {
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clipData = ClipData.newPlainText(null, Err);
-        Objects.requireNonNull(clipboard).setPrimaryClip(clipData);
-    }
-
-    private void deleteCache() {
-        if (istemp) {
-            deleteSingleFile(apkFile);
-        }
-    }
-
     @Override
     protected void startUninstall(String pkgname) {
         Log.d("Start uninstall", pkgname);
@@ -90,10 +71,10 @@ public class InstallActivity extends AbstractInstallActivity {
             try {
                 String result = PackageInstallerUtil.uninstallPackage(this, pkgname);
                 if (result == null) {
-                    showToast0(String.format(getString(R.string.success_uninstall), pkgLable));
+                    showToast0(String.format(getString(R.string.success_uninstall), packageLable));
                 } else {
                     copyErr(String.format("%s: %s %s | %s | Android %s \n\n%s\n%s", getString(R.string.installer_device), Build.BRAND, Build.MODEL, isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE, alertDialogMessage, result));
-                    showToast1(String.format(getString(R.string.failed_uninstall), pkgLable, result));
+                    showToast1(String.format(getString(R.string.failed_uninstall), packageLable, result));
                 }
             } catch (Exception e) {
                 e.printStackTrace();

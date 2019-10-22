@@ -4,6 +4,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -44,10 +46,11 @@ public abstract class AbstractInstallActivity extends Activity {
     private static final String ILLEGALPKGNAME = "IL^&IllegalPN*@!128`+=：:,.[";
     private final String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
     private final String nl = System.getProperty("line.separator");
-    boolean istemp = false;
     String[] apkinfo;
-    String pkgLable;
+    String packageLable;
     StringBuilder alertDialogMessage;
+    File apkFile;
+    private boolean istemp = false;
     private String[] source;
     private Uri uri;
     private boolean needrequest;
@@ -117,9 +120,9 @@ public abstract class AbstractInstallActivity extends Activity {
     private void initUninstall() {
         String[] version = getExistedVersion(pkgname);
 
-        pkgLable = ApplicationLabelUtils.getApplicationLabel(this, null, null, pkgname);
-        if (ApplicationLabelUtils.UNINSTALLED.equals(pkgLable)) {
-            pkgLable = "Uninstalled";
+        packageLable = ApplicationLabelUtils.getApplicationLabel(this, null, null, pkgname);
+        if (ApplicationLabelUtils.UNINSTALLED.equals(packageLable)) {
+            packageLable = "Uninstalled";
         }
 
         alertDialogMessage = new StringBuilder();
@@ -127,7 +130,7 @@ public abstract class AbstractInstallActivity extends Activity {
                 .append(
                         String.format(
                                 getString(R.string.message_name),
-                                pkgLable
+                                packageLable
                         )
                 )
                 .append(nl)
@@ -395,6 +398,18 @@ public abstract class AbstractInstallActivity extends Activity {
     }
 
 
+    void copyErr(String Err) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText(null, Err);
+        Objects.requireNonNull(clipboard).setPrimaryClip(clipData);
+    }
+
+    void deleteCache() {
+        if (istemp) {
+            deleteSingleFile(apkFile);
+        }
+    }
+
     void showToast0(final String text) {
         runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_SHORT).show());
     }
@@ -425,8 +440,7 @@ public abstract class AbstractInstallActivity extends Activity {
         return tempFile.getAbsolutePath();
     }
 
-
-    void deleteSingleFile(File file) {
+    private void deleteSingleFile(File file) {
         if (file.exists() && file.isFile()) {
             if (file.delete()) {
                 Log.e("-DELETE-", "==>" + file.getAbsolutePath() + " OK！");
