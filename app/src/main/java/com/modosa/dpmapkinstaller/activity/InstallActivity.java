@@ -64,12 +64,12 @@ public class InstallActivity extends AbstractInstallActivity {
     }
 
     @Override
-    protected void startUninstall(String pkgname) {
-        Log.d("Start uninstall", pkgname);
+    protected void startUninstall(String pkgName) {
+        Log.d("Start uninstall", pkgName);
         new Thread(() -> {
             Looper.prepare();
             try {
-                String result = PackageInstallerUtil.uninstallPackage(this, pkgname);
+                String result = PackageInstallerUtil.uninstallPackage(this, pkgName);
                 if (result == null) {
                     showToast0(String.format(getString(R.string.success_uninstall), packageLable));
                 } else {

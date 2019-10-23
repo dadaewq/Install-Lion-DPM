@@ -10,9 +10,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,8 +24,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.modosa.dpmapkinstaller.R;
-import com.modosa.dpmapkinstaller.utils.ApplicationLabelUtils;
-import com.modosa.dpmapkinstaller.utils.FileSizeUtils;
+import com.modosa.dpmapkinstaller.utils.AppInfoUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -58,15 +54,15 @@ public abstract class AbstractInstallActivity extends Activity {
     private SharedPreferences.Editor editor;
     private AlertDialog alertDialog;
     private String cachePath;
-    private String pkgname;
+    private String pkgName;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String action = getIntent().getAction();
         if (Intent.ACTION_DELETE.equals(action) || Intent.ACTION_UNINSTALL_PACKAGE.equals(action)) {
-            pkgname = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
-            if (pkgname == null) {
+            pkgName = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
+            if (pkgName == null) {
                 showToast0(getString(R.string.failed_prase));
                 finish();
             } else {
@@ -93,35 +89,11 @@ public abstract class AbstractInstallActivity extends Activity {
 
     }
 
-    private String[] getExistedVersion(String pkgname) {
-        PackageManager pm = getPackageManager();
-        ApplicationInfo applicationInfo = null;
-        try {
-            applicationInfo = pm.getApplicationInfo(pkgname, 0);
-        } catch (Exception ignore) {
-        }
-        if (applicationInfo == null) {
-            return null;
-        } else {
-            String apkPath = applicationInfo.sourceDir;
-            PackageInfo pkgInfo = pm.getPackageArchiveInfo(apkPath, PackageManager.GET_ACTIVITIES);
-            if (pkgInfo != null) {
-                pkgInfo.applicationInfo.sourceDir = apkPath;
-                pkgInfo.applicationInfo.publicSourceDir = apkPath;
-                return new String[]{pkgInfo.versionName,
-                        Build.VERSION.SDK_INT < Build.VERSION_CODES.P ? Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode())};
-            } else {
-                return null;
-            }
-        }
-
-    }
-
     private void initUninstall() {
-        String[] version = getExistedVersion(pkgname);
+        String[] version = AppInfoUtils.getApplicationVersion(this, pkgName);
 
-        packageLable = ApplicationLabelUtils.getApplicationLabel(this, null, null, pkgname);
-        if (ApplicationLabelUtils.UNINSTALLED.equals(packageLable)) {
+        packageLable = AppInfoUtils.getApplicationLabel(this, pkgName);
+        if (AppInfoUtils.UNINSTALLED.equals(packageLable)) {
             packageLable = "Uninstalled";
         }
 
@@ -137,7 +109,7 @@ public abstract class AbstractInstallActivity extends Activity {
                 .append(
                         String.format(
                                 getString(R.string.message_packagename),
-                                pkgname
+                                pkgName
                         )
                 )
                 .append(nl);
@@ -155,7 +127,7 @@ public abstract class AbstractInstallActivity extends Activity {
         builder.setTitle(getString(R.string.dialog_uninstall_title));
         builder.setMessage(alertDialogMessage + nl + nl + getString(R.string.message_uninstalConfirm));
         builder.setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
-            startUninstall(pkgname);
+            startUninstall(pkgName);
             finish();
         });
         builder.setNegativeButton(android.R.string.no, (dialogInterface, i) -> finish());
@@ -180,7 +152,7 @@ public abstract class AbstractInstallActivity extends Activity {
             finish();
         } else {
 
-            String[] version = getExistedVersion(apkinfo[1]);
+            String[] version = AppInfoUtils.getApplicationVersion(this, apkinfo[1]);
 
             alertDialogMessage = new StringBuilder();
             alertDialogMessage
@@ -274,6 +246,7 @@ public abstract class AbstractInstallActivity extends Activity {
         try {
             Class activityClass = Class.forName("android.app.Activity");
 
+            //noinspection JavaReflectionMemberAccess
             Field refererField = activityClass.getDeclaredField("mReferrer");
             refererField.setAccessible(true);
             return (String) refererField.get(this);
@@ -301,8 +274,8 @@ public abstract class AbstractInstallActivity extends Activity {
             }
         }
         String refererPackageLabel =
-                ApplicationLabelUtils.getApplicationLabel(this, null, null, fromPkgName);
-        if (ApplicationLabelUtils.UNINSTALLED.equals(refererPackageLabel)) {
+                AppInfoUtils.getApplicationLabel(this, fromPkgName);
+        if (AppInfoUtils.UNINSTALLED.equals(refererPackageLabel)) {
             fromPkgLabel = ILLEGALPKGNAME;
         } else {
             fromPkgLabel = refererPackageLabel;
@@ -347,12 +320,12 @@ public abstract class AbstractInstallActivity extends Activity {
                 showToast0(getString(R.string.failed_prase));
                 finish();
             }
-            apkinfo = getApkPkgInfo(apkPath);
+            apkinfo = AppInfoUtils.getApkInfo(this, apkPath);
             if (apkinfo != null) {
                 return apkPath;
             } else {
 
-                if (ContentResolver.SCHEME_FILE.equals(uri.getScheme()) && apkPath != null && getExistedVersion("moe.shizuku.redirectstorage") != null) {
+                if (ContentResolver.SCHEME_FILE.equals(uri.getScheme()) && apkPath != null && AppInfoUtils.getApplicationVersion(this, "moe.shizuku.redirectstorage") != null) {
                     return checkSR(apkPath);
                 } else {
                     return null;
@@ -373,7 +346,7 @@ public abstract class AbstractInstallActivity extends Activity {
             stringBuilder.insert(prefix.length(), toInsert);
             apkPath = stringBuilder.toString();
             Log.e("SRnewpath", apkPath);
-            apkinfo = getApkPkgInfo(apkPath);
+            apkinfo = AppInfoUtils.getApkInfo(this, apkPath);
             if (apkinfo != null) {
                 return apkPath;
             } else {
@@ -386,7 +359,7 @@ public abstract class AbstractInstallActivity extends Activity {
 
     protected abstract void startInstall(String apkPath);
 
-    protected abstract void startUninstall(String pkgname);
+    protected abstract void startUninstall(String pkgName);
 
     private void requestPermission() {
         ActivityCompat.requestPermissions(this, permissions, 0x233);
@@ -397,9 +370,9 @@ public abstract class AbstractInstallActivity extends Activity {
         return (permissionRead == 0);
     }
 
-    void copyErr(String Err) {
+    void copyErr(String err) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clipData = ClipData.newPlainText(null, Err);
+        ClipData clipData = ClipData.newPlainText(null, err);
         Objects.requireNonNull(clipboard).setPrimaryClip(clipData);
     }
 
@@ -451,23 +424,5 @@ public abstract class AbstractInstallActivity extends Activity {
         }
     }
 
-    private String[] getApkPkgInfo(String apkPath) {
-        if (apkPath == null) {
-            return null;
-        } else {
-            PackageManager pm = this.getPackageManager();
-            PackageInfo pkgInfo = pm.getPackageArchiveInfo(apkPath, PackageManager.GET_ACTIVITIES);
-
-            if (pkgInfo != null) {
-                pkgInfo.applicationInfo.sourceDir = apkPath;
-                pkgInfo.applicationInfo.publicSourceDir = apkPath;
-
-                return new String[]{pm.getApplicationLabel(pkgInfo.applicationInfo).toString(), pkgInfo.packageName, pkgInfo.versionName,
-                        Build.VERSION.SDK_INT < Build.VERSION_CODES.P ?
-                                Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode()), FileSizeUtils.getAutoFolderOrFileSize(apkPath)};
-            }
-            return null;
-        }
-    }
 
 }
