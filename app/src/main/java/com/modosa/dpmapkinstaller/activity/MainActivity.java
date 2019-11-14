@@ -146,10 +146,6 @@ public class MainActivity extends Activity {
                 .setNegativeButton(android.R.string.no, null)
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     if (clearDeviceOwner()) {
-                        try {
-                            mDevicePolicyManager.removeActiveAdmin(componentName);
-                        } catch (Exception ignore) {
-                        }
                         show_OrgName.setVisibility(View.GONE);
                         textView.setText(getString(R.string.notDeviceOwner));
                         cmd.setVisibility(View.VISIBLE);
