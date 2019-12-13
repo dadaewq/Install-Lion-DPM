@@ -1,7 +1,6 @@
 package com.modosa.dpmapkinstaller.activity;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -13,13 +12,11 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -216,9 +213,9 @@ public abstract class AbstractInstallActivity extends Activity {
 
 
             checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                    editor = sourceSp.edit();
+                editor = sourceSp.edit();
                 editor.putBoolean(source[0], isChecked);
-                    editor.apply();
+                editor.apply();
             });
             builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
                 cachePath = null;
@@ -318,35 +315,10 @@ public abstract class AbstractInstallActivity extends Activity {
             if (apkinfo != null) {
                 return apkPath;
             } else {
-
-                if (ContentResolver.SCHEME_FILE.equals(uri.getScheme()) && apkPath != null && AppInfoUtils.getApplicationVersion(this, "moe.shizuku.redirectstorage") != null) {
-                    return checkSR(apkPath);
-                } else {
-                    return null;
-                }
-
-            }
-        } else {
-            finish();
-            return null;
-        }
-    }
-
-    private String checkSR(@NonNull String apkPath) {
-        String prefix = Environment.getExternalStorageDirectory().getAbsolutePath();
-        if (apkPath.startsWith(prefix)) {
-            StringBuilder stringBuilder = new StringBuilder(apkPath);
-            @SuppressLint("SdCardPath") String toInsert = "/Android/data/" + source[0] + "/sdcard";
-            stringBuilder.insert(prefix.length(), toInsert);
-            apkPath = stringBuilder.toString();
-            Log.e("SRnewpath", apkPath);
-            apkinfo = AppInfoUtils.getApkInfo(this, apkPath);
-            if (apkinfo != null) {
-                return apkPath;
-            } else {
                 return null;
             }
         } else {
+            finish();
             return null;
         }
     }
