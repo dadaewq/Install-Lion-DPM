@@ -28,7 +28,7 @@
         <activity
             android:name=".activity.MainActivity"
             android:launchMode="singleInstance"
-            android:theme="@style/AppTheme">
+            android:theme="@style/DeviceDefault.Dialog">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -41,7 +41,7 @@
             android:enabled="true"
             android:excludeFromRecents="true"
             android:noHistory="true"
-            android:theme="@style/AppTheme">
+            android:theme="@style/DeviceDefault.Dialog">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.INSTALL_PACKAGE" />
