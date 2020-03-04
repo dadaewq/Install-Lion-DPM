@@ -21,7 +21,7 @@ public class LaunchActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         try {
-            String packagename = getIntent().getExtras().get(Intent.EXTRA_PACKAGE_NAME) + "";
+            String packagename = getIntent().getStringExtra(Intent.EXTRA_PACKAGE_NAME) + "";
             Log.d("PACKAGE_NAME ==>", packagename);
             Intent intent = getPackageManager().getLaunchIntentForPackage(packagename);
             startActivity(intent);

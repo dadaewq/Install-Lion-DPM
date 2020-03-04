@@ -1,4 +1,4 @@
-package com.modosa.dpmapkinstaller.utils;
+package com.modosa.dpmapkinstaller.util;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;

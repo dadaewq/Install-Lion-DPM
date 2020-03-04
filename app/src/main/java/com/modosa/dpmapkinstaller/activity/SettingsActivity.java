@@ -25,7 +25,7 @@ import com.modosa.dpmapkinstaller.receiver.AdminReceiver;
 import java.util.Objects;
 
 
-public class MainActivity extends Activity {
+public class SettingsActivity extends Activity {
 
     private final String CMD = "adb shell dpm set-device-owner com.modosa.dpmapkinstaller/.receiver.AdminReceiver";
     private DevicePolicyManager mDevicePolicyManager;

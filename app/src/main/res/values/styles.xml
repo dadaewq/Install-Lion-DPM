@@ -4,4 +4,6 @@
         <item name="android:colorBackground">@color/Background</item>
     </style>
 
+    <style name="Translucent" parent="@android:style/Theme.Translucent.NoTitleBar" />
+
 </resources>

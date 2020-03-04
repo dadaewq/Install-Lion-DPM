@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.modosa.dpmapkinstaller.R;
-import com.modosa.dpmapkinstaller.utils.PackageInstallerUtil;
+import com.modosa.dpmapkinstaller.util.PackageInstallerUtil;
 
 import java.io.File;
 

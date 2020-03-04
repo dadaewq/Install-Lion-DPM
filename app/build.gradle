@@ -8,9 +8,10 @@ android {
         applicationId "com.modosa.dpmapkinstaller"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 8
-        versionName "1.6"
+        versionCode 9
+        versionName "1.7"
     }
+
     buildTypes {
         release {
             shrinkResources true
@@ -18,10 +19,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     android.applicationVariants.all { variant ->
         variant.outputs.all {
             outputFileName = "${applicationId}_${defaultConfig.getVersionCode()}_${versionName}.apk"

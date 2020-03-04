@@ -1,4 +1,4 @@
-package com.modosa.dpmapkinstaller.utils;
+package com.modosa.dpmapkinstaller.util;
 
 
 import android.util.Log;
@@ -13,7 +13,7 @@ import java.text.DecimalFormat;
  * @
  * @modifiedFrom https://github.com/haiyuKing/FileSizeUtilDemo/blob/master/app/src/main/java/com/why/project/filesizeutildemo/utils/FileSizeUtil.java
  */
-class FileSizeUtils {
+class FileSizeUtil {
 
     private static final int SIZETYPE_B = 1;//获取文件大小单位为B的double值
     private static final int SIZETYPE_KB = 2;//获取文件大小单位为KB的double值
@@ -49,7 +49,7 @@ class FileSizeUtils {
      * @param filePath 文件路径
      * @return 计算好的带B、KB、MB、GB的字符串
      */
-    public static String getAutoFolderOrFileSize(String filePath) {
+    static String getAutoFolderOrFileSize(String filePath) {
         File file = new File(filePath);
         long blockSize = 0;
         try {
@@ -150,16 +150,16 @@ class FileSizeUtils {
         double fileSizeLong = 0;
         switch (sizeType) {
             case SIZETYPE_B:
-                fileSizeLong = Double.valueOf(df.format((double) fileSize));
+                fileSizeLong = Double.parseDouble(df.format((double) fileSize));
                 break;
             case SIZETYPE_KB:
-                fileSizeLong = Double.valueOf(df.format((double) fileSize / 1024));
+                fileSizeLong = Double.parseDouble(df.format((double) fileSize / 1024));
                 break;
             case SIZETYPE_MB:
-                fileSizeLong = Double.valueOf(df.format((double) fileSize / 1048576));
+                fileSizeLong = Double.parseDouble(df.format((double) fileSize / 1048576));
                 break;
             case SIZETYPE_GB:
-                fileSizeLong = Double.valueOf(df.format((double) fileSize / 1073741824));
+                fileSizeLong = Double.parseDouble(df.format((double) fileSize / 1073741824));
                 break;
             default:
                 break;
