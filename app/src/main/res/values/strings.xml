@@ -25,9 +25,21 @@
     <string name="notDeviceOwner">✘ Not the Device Owner Currently\n(Click the commands to copy)</string>
     <string name="show_OrgName">Organization Name</string>
     <string name="release_DPM">Release Device Owner Permission?</string>
-    <string name="release_tip">This operation is irrevocable</string>
+    <string name="release_tip">\nThis operation is irrevocable</string>
+    <string name="ltsdk23_tip">Only supports Android 6.0 and above devices</string>
     <string name="exit_tip">Press Back Again to Exit</string>
     <string name="installer_device">Device</string>
     <string name="launch_name">Run App</string>
     <string name="unknown">Unknown</string>
+    <string name="SystemSettings">System Settings：</string>
+    <string name="DISALLOW_INSTALL_APPS">Disallow install Apps</string>
+    <string name="DISALLOW_UNINSTALL_APPS">Disallow uninstall Apps</string>
+    <string name="DISALLOW_INSTALL_UNKNOWN_SOURCES">Disallow install unknown sources Apps</string>
+    <string name="UserRestrictions">User Restrictions</string>
+    <string name="RebootDevice">Reboot Device</string>
+    <string name="restrictionkey_tip">Please input the key of the restriction</string>
+    <string name="add">Add</string>
+    <string name="clear">Clear</string>
+    <string name="close">Close</string>
+    <string name="empty_tip">The key Cannot be empty</string>
 </resources>

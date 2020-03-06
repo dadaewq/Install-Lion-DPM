@@ -94,7 +94,8 @@ public final class AppInfoUtil {
                     pm.getApplicationLabel(pkgInfo.applicationInfo).toString(),
                     pkgInfo.packageName,
                     pkgInfo.versionName,
-                    Build.VERSION.SDK_INT < Build.VERSION_CODES.P ? Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode()), FileSizeUtil.getAutoFolderOrFileSize(apkPath)
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.P ? Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode()),
+                    FileSizeUtil.getAutoFolderOrFileSize(apkPath)
             };
         } else {
             return null;

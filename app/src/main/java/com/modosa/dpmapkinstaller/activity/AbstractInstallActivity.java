@@ -9,10 +9,13 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
@@ -39,6 +42,7 @@ public abstract class AbstractInstallActivity extends Activity {
     private static final String ILLEGALPKGNAME = "IL^&IllegalPN*@!128`+=：:,.[";
     private final String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
     private final String nl = System.getProperty("line.separator");
+    private final boolean ltsdk23 = Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
     String[] apkinfo;
     String packageLable;
     StringBuilder alertDialogMessage;
@@ -59,7 +63,7 @@ public abstract class AbstractInstallActivity extends Activity {
         if (Intent.ACTION_DELETE.equals(action) || Intent.ACTION_UNINSTALL_PACKAGE.equals(action)) {
             pkgName = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
             if (pkgName == null) {
-                showToast0(getString(R.string.failed_prase));
+                showToast0(R.string.failed_prase);
                 finish();
             } else {
                 initUninstall();
@@ -111,7 +115,7 @@ public abstract class AbstractInstallActivity extends Activity {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.dialog_uninstall_title));
+        builder.setTitle(R.string.dialog_uninstall_title);
         builder.setMessage(alertDialogMessage + nl + nl + getString(R.string.message_uninstalConfirm));
         builder.setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
             startUninstall(pkgName);
@@ -119,6 +123,10 @@ public abstract class AbstractInstallActivity extends Activity {
         });
         builder.setNegativeButton(android.R.string.no, (dialogInterface, i) -> finish());
         alertDialog = builder.show();
+        Window window = alertDialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.Background)));
+        }
         alertDialog.setOnCancelListener(dialog -> finish());
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(20);
         alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(20);
@@ -132,13 +140,18 @@ public abstract class AbstractInstallActivity extends Activity {
         cachePath = apkPath;
         Log.e("cachePath", cachePath + "");
         if (apkPath == null) {
-            showToast0(getString(R.string.failed_prase));
-            finish();
-        } else if (!source[1].equals(ILLEGALPKGNAME) && allowsource) {
-            startInstall(apkPath);
+            showToast0(R.string.failed_prase);
             finish();
         } else {
-
+            if (ltsdk23) {
+                deleteCache();
+            } else {
+                if (!source[1].equals(ILLEGALPKGNAME) && allowsource) {
+                    startInstall(apkPath);
+                    finish();
+                    return;
+                }
+            }
             String[] version = AppInfoUtil.getApplicationVersion(this, apkinfo[1]);
 
             alertDialogMessage = new StringBuilder();
@@ -188,14 +201,14 @@ public abstract class AbstractInstallActivity extends Activity {
                     .append(nl);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(getString(R.string.dialog_install_title));
+            builder.setTitle(R.string.dialog_install_title);
 
             builder.setMessage(alertDialogMessage);
             View checkBoxView = View.inflate(this, R.layout.confirm_checkbox, null);
             builder.setView(checkBoxView);
             CheckBox checkBox = checkBoxView.findViewById(R.id.confirm_checkbox);
             if (source[1].equals(ILLEGALPKGNAME)) {
-                checkBox.setText(getString(R.string.installsource_unkonwn));
+                checkBox.setText(R.string.installsource_unkonwn);
                 checkBox.setEnabled(false);
             } else {
                 checkBox.setText(String.format(getString(R.string.always_allow), source[1]));
@@ -208,15 +221,22 @@ public abstract class AbstractInstallActivity extends Activity {
                 editor.apply();
             });
             builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                cachePath = null;
-                startInstall(apkPath);
+                if (ltsdk23) {
+                    showToast1(R.string.ltsdk23_tip);
+                } else {
+                    cachePath = null;
+                    startInstall(apkPath);
+                }
                 finish();
             });
             builder.setNegativeButton(android.R.string.no, (dialog, which) -> finish());
 
-
             builder.setCancelable(false);
             alertDialog = builder.show();
+            Window window = alertDialog.getWindow();
+            if (window != null) {
+                window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.Background)));
+            }
             alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(20);
             alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(20);
         }
@@ -285,7 +305,7 @@ public abstract class AbstractInstallActivity extends Activity {
                 }
 
             } else {
-                showToast0(getString(R.string.failed_prase));
+                showToast0(R.string.failed_prase);
                 finish();
             }
             apkinfo = AppInfoUtil.getApkInfo(this, apkPath);
@@ -323,8 +343,16 @@ public abstract class AbstractInstallActivity extends Activity {
         runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_SHORT).show());
     }
 
+    void showToast0(final int stringId) {
+        runOnUiThread(() -> Toast.makeText(this, stringId, Toast.LENGTH_SHORT).show());
+    }
+
     void showToast1(final String text) {
         runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_LONG).show());
+    }
+
+    private void showToast1(final int stringId) {
+        runOnUiThread(() -> Toast.makeText(this, stringId, Toast.LENGTH_SHORT).show());
     }
 
     private String createApkFromUri(Context context) {

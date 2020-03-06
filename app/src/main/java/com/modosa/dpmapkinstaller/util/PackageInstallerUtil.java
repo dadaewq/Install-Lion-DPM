@@ -18,6 +18,7 @@ import com.modosa.dpmapkinstaller.R;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -69,7 +70,7 @@ public class PackageInstallerUtil {
             OutputStream out = session.openWrite(name, 0, -1);
             byte[] buffer = new byte[65536];
             int c;
-            while ((c = in.read(buffer)) != -1) {
+            while ((c = Objects.requireNonNull(in).read(buffer)) != -1) {
                 out.write(buffer, 0, c);
             }
             session.fsync(out);

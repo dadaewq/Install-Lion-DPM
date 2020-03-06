@@ -58,7 +58,7 @@ public class InstallActivity extends AbstractInstallActivity {
             ).start();
             finish();
         } else {
-            showToast0(getString(R.string.failed_read));
+            showToast0(R.string.failed_read);
             finish();
         }
     }
