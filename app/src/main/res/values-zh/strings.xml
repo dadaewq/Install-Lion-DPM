@@ -53,6 +53,6 @@
     <string name="close">关闭</string>
     <string name="tip_empty">关键字不可为空</string>
     <string name="title_lockdefault">警告！</string>
-    <string name="message_lockdefault">锁定默认应用是永久生效的，即使在取消激活设备管理员后。在取消激活设备管理员前请确保取消不必要的锁定\n\n(提醒：在部分定制系统上无法锁定)\n</string>
+    <string name="message_lockdefault">锁定默认应用是永久生效的，即使在取消激活设备管理员后。\n在取消激活设备管理员前请确保取消不必要的锁定。\n\n(提醒：在部分定制系统上无法锁定)\n</string>
     <string name="checkbox_lockdefault">我已经充分知晓并自行承担风险</string>
 </resources>

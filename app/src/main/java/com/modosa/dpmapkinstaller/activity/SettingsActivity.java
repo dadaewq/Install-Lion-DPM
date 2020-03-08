@@ -46,7 +46,6 @@ import java.util.Objects;
  * @author dadaewq
  */
 public class SettingsActivity extends Activity {
-    public final int version_sdk = Build.VERSION.SDK_INT;
     private final String sp_orgName = "orgName";
     private final String sp_confirmWarning = "confirmWarning";
     private final String[] userRestrictionsKeys = {UserManager.DISALLOW_INSTALL_APPS, UserManager.DISALLOW_UNINSTALL_APPS, UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES};
