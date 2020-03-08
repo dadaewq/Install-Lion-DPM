@@ -12,6 +12,9 @@ import com.modosa.dpmapkinstaller.util.PackageInstallerUtil;
 
 import java.io.File;
 
+/**
+ * @author dadaewq
+ */
 public class InstallActivity extends AbstractInstallActivity {
 
     @SuppressLint("PrivateApi")
@@ -37,18 +40,18 @@ public class InstallActivity extends AbstractInstallActivity {
             apkFile = new File(apkPath);
             new Thread(() -> {
                 Looper.prepare();
-                showToast0(String.format(getString(R.string.start_install), apkinfo[0]));
+                showToast0(String.format(getString(R.string.tip_start_install), apkinfo[0]));
                 try {
                     String result = PackageInstallerUtil.installPackage(this, Uri.fromFile(apkFile), null);
                     if (result == null) {
                         deleteCache();
-                        showToast0(String.format(getString(R.string.success_install), apkinfo[0]));
+                        showToast0(String.format(getString(R.string.tip_success_install), apkinfo[0]));
                     } else {
                         deleteCache();
                         String err = String.format("%s: %s %s | %s | Android %s \n", getString(R.string.installer_device), Build.BRAND, Build.MODEL, isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE) +
                                 String.format(alertDialogMessage + "\n%s", result);
                         copyErr(err);
-                        showToast1(String.format(getString(R.string.failed_install), apkinfo[0], result));
+                        showToast1(String.format(getString(R.string.tip_failed_install), apkinfo[0], result));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -58,7 +61,7 @@ public class InstallActivity extends AbstractInstallActivity {
             ).start();
             finish();
         } else {
-            showToast0(R.string.failed_read);
+            showToast0(R.string.tip_failed_read);
             finish();
         }
     }
@@ -71,10 +74,10 @@ public class InstallActivity extends AbstractInstallActivity {
             try {
                 String result = PackageInstallerUtil.uninstallPackage(this, pkgName);
                 if (result == null) {
-                    showToast0(String.format(getString(R.string.success_uninstall), packageLable));
+                    showToast0(String.format(getString(R.string.tip_success_uninstall), packageLable));
                 } else {
                     copyErr(String.format("%s: %s %s | %s | Android %s \n\n%s\n%s", getString(R.string.installer_device), Build.BRAND, Build.MODEL, isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE, alertDialogMessage, result));
-                    showToast1(String.format(getString(R.string.failed_uninstall), packageLable, result));
+                    showToast1(String.format(getString(R.string.tip_failed_uninstall), packageLable, result));
                 }
             } catch (Exception e) {
                 e.printStackTrace();

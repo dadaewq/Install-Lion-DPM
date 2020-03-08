@@ -8,7 +8,9 @@ import android.widget.Toast;
 
 import com.modosa.dpmapkinstaller.R;
 
-
+/**
+ * @author dadaewq
+ */
 public class AdminReceiver extends android.app.admin.DeviceAdminReceiver {
     public static ComponentName getComponentName(Context context) {
         return new ComponentName(context.getApplicationContext(), AdminReceiver.class);
@@ -16,18 +18,9 @@ public class AdminReceiver extends android.app.admin.DeviceAdminReceiver {
 
     @Override
     public void onEnabled(Context context, Intent intent) {
+        super.onEnabled(context, intent);
         Log.e("onEnabled", intent + "");
-        Toast.makeText(context, context.getString(R.string.start_activating), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, context.getString(R.string.tip_start_activating), Toast.LENGTH_LONG).show();
     }
 
-    @Override
-    public CharSequence onDisableRequested(Context context, Intent intent) {
-        Log.e("onDisableRequested", intent + "");
-        return "取消吗";
-    }
-
-    @Override
-    public void onDisabled(Context context, Intent intent) {
-        Log.e("onDisabled", intent + "");
-    }
 }

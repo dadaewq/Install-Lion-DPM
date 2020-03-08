@@ -9,13 +9,11 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
@@ -25,6 +23,7 @@ import androidx.core.content.ContextCompat;
 
 import com.modosa.dpmapkinstaller.R;
 import com.modosa.dpmapkinstaller.util.AppInfoUtil;
+import com.modosa.dpmapkinstaller.util.OpUtil;
 import com.modosa.dpmapkinstaller.util.PraseContentUtil;
 
 import java.io.File;
@@ -63,7 +62,7 @@ public abstract class AbstractInstallActivity extends Activity {
         if (Intent.ACTION_DELETE.equals(action) || Intent.ACTION_UNINSTALL_PACKAGE.equals(action)) {
             pkgName = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
             if (pkgName == null) {
-                showToast0(R.string.failed_prase);
+                showToast0(R.string.tip_failed_prase);
                 finish();
             } else {
                 initUninstall();
@@ -114,19 +113,18 @@ public abstract class AbstractInstallActivity extends Activity {
                     .append(nl);
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.dialog_uninstall_title);
-        builder.setMessage(alertDialogMessage + nl + nl + getString(R.string.message_uninstalConfirm));
-        builder.setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
-            startUninstall(pkgName);
-            finish();
-        });
-        builder.setNegativeButton(android.R.string.no, (dialogInterface, i) -> finish());
-        alertDialog = builder.show();
-        Window window = alertDialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.Background)));
-        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.title_dialog_uninstall)
+                .setMessage(alertDialogMessage + nl + nl + getString(R.string.message_irrevocableConfirm))
+                .setNegativeButton(android.R.string.no, (dialogInterface, i) -> finish())
+                .setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
+                    startUninstall(pkgName);
+                    finish();
+                });
+
+        alertDialog = builder.create();
+        OpUtil.showAlertDialog(this, alertDialog);
+
         alertDialog.setOnCancelListener(dialog -> finish());
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(20);
         alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(20);
@@ -140,7 +138,7 @@ public abstract class AbstractInstallActivity extends Activity {
         cachePath = apkPath;
         Log.e("cachePath", cachePath + "");
         if (apkPath == null) {
-            showToast0(R.string.failed_prase);
+            showToast0(R.string.tip_failed_prase);
             finish();
         } else {
             if (ltsdk23) {
@@ -200,43 +198,46 @@ public abstract class AbstractInstallActivity extends Activity {
                     )
                     .append(nl);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.dialog_install_title);
-
-            builder.setMessage(alertDialogMessage);
             View checkBoxView = View.inflate(this, R.layout.confirm_checkbox, null);
-            builder.setView(checkBoxView);
             CheckBox checkBox = checkBoxView.findViewById(R.id.confirm_checkbox);
-            if (source[1].equals(ILLEGALPKGNAME)) {
-                checkBox.setText(R.string.installsource_unkonwn);
+
+            if (ltsdk23) {
                 checkBox.setEnabled(false);
             } else {
-                checkBox.setText(String.format(getString(R.string.always_allow), source[1]));
+                checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    editor = sourceSp.edit();
+                    editor.putBoolean(source[0], isChecked);
+                    editor.apply();
+                });
             }
 
 
-            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                editor = sourceSp.edit();
-                editor.putBoolean(source[0], isChecked);
-                editor.apply();
-            });
-            builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                if (ltsdk23) {
-                    showToast1(R.string.ltsdk23_tip);
-                } else {
-                    cachePath = null;
-                    startInstall(apkPath);
-                }
-                finish();
-            });
-            builder.setNegativeButton(android.R.string.no, (dialog, which) -> finish());
-
-            builder.setCancelable(false);
-            alertDialog = builder.show();
-            Window window = alertDialog.getWindow();
-            if (window != null) {
-                window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.Background)));
+            if (source[1].equals(ILLEGALPKGNAME)) {
+                checkBox.setText(R.string.checkbox_installsource_unkonwn);
+                checkBox.setEnabled(false);
+            } else {
+                checkBox.setText(String.format(getString(R.string.checkbox_always_allow), source[1]));
             }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setTitle(R.string.title_dialog_install)
+                    .setMessage(alertDialogMessage)
+                    .setView(checkBoxView)
+                    .setCancelable(false)
+                    .setNegativeButton(android.R.string.no, (dialog, which) -> finish())
+                    .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                        if (ltsdk23) {
+                            showToast1(R.string.tip_ltsdk23);
+                        } else {
+                            cachePath = null;
+                            startInstall(apkPath);
+                        }
+                        finish();
+                    });
+
+            alertDialog = builder.create();
+            OpUtil.showAlertDialog(this, alertDialog);
+
             alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(20);
             alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(20);
         }
@@ -305,7 +306,7 @@ public abstract class AbstractInstallActivity extends Activity {
                 }
 
             } else {
-                showToast0(R.string.failed_prase);
+                showToast0(R.string.tip_failed_prase);
                 finish();
             }
             apkinfo = AppInfoUtil.getApkInfo(this, apkPath);

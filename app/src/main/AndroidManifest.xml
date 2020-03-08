@@ -19,6 +19,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:manageSpaceActivity=".activity.SettingsActivity"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -32,12 +33,24 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
             </intent-filter>
         </activity>
+        <activity-alias
+            android:name=".activity.MainActivity"
+            android:label="@string/app_name"
+            android:targetActivity=".activity.SettingsActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
         <activity
             android:name=".activity.InstallActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
@@ -95,11 +108,20 @@
             <intent-filter>
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
-
             <meta-data
                 android:name="android.app.device_admin"
                 android:resource="@xml/device_admin" />
         </receiver>
+
+        <receiver android:name=".receiver.SecretCodeReceiver">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SECRET_CODE" />
+                <data
+                    android:host="297376"
+                    android:scheme="android_secret_code" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

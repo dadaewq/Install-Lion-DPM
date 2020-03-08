@@ -263,7 +263,9 @@ public class PraseContentUtil {
     @SuppressLint("SdCardPath")
     private static File getSomeFileFromAuthorityAndUri() {
         String path = "";
+        String path0;
         ArrayList<String> pathList = new ArrayList<>();
+
         switch (authority) {
             case "moe.shizuku.redirectstorage.ServerFileProvider":
                 if (uri.getPathSegments().size() > 2) {
@@ -312,7 +314,8 @@ public class PraseContentUtil {
                         break;
                     default:
                 }
-                pathList.add(path);
+                path0 = path;
+
 
                 //删索引0路径段和其前面的"/",前面加"/storage/emulated/0"+"/Android/data/com.referrer/sdcard"
                 path = getExternalStorageDirectory + getStorageIsolationDir + getPathFromIndex1PathSegment;
@@ -323,6 +326,7 @@ public class PraseContentUtil {
                 path = getExternalStorageDirectory + getStorageIsolationDir + "/GDTDOWNLOAD" + getPathFromIndex1PathSegment;
                 pathList.add(path);
 
+                pathList.add(path0);
                 break;
             case "com.coolapk.market.vn.fileProvider":
                 switch (getfirstPathSegment) {
@@ -341,12 +345,13 @@ public class PraseContentUtil {
                         break;
                     default:
                 }
+                path0 = path;
                 pathList.add(path);
 
                 //删索引0路径段和其前面的"/",前面加"/storage/emulated/0"+"/Android/data/com.referrer/sdcard"
                 path = getExternalStorageDirectory + getStorageIsolationDir + getPathFromIndex1PathSegment;
                 pathList.add(path);
-
+                pathList.add(path0);
                 break;
 //                //content://com.tencent.mobileqq.fileprovider/external_files/storage/emulated/0/Tencent/QQfile_recv/file.apk
 //                //content://com.tencent.mobileqq.fileprovider/external_files/storage/emulated/0/Android/data/com.tencent.mobileqq/Tencent/QQfile_recv/file.apk
@@ -385,6 +390,16 @@ public class PraseContentUtil {
             case "pl.solidexplorer2.files":
             case "cn.ljt.p7zip.fileprovider":
             default:
+                if (("downloads").equals(getfirstPathSegment)) {
+                    if (uri.getPathSegments().size() > 1) {
+                        path = getExternalStorageDirectory + "/Download" + getPathFromIndex1PathSegment;
+                        path0 = path;
+                        path = getExternalStorageDirectory + getStorageIsolationDir + "/Download" + getPathFromIndex1PathSegment;
+                        pathList.add(path);
+                        pathList.add(path0);
+                        return pickValidFilefromPathList(pathList);
+                    }
+                }
                 return null;
         }
         return pickValidFilefromPathList(pathList);
@@ -453,9 +468,11 @@ public class PraseContentUtil {
     @SuppressLint("SdCardPath")
     private static ArrayList<String> getPathListStartWith(String startWith, @NonNull String path) {
         ArrayList<String> pathList = new ArrayList<>();
+        String path0;
         if (path.startsWith(startWith)) {
             //content://in.mfile.files/storage/emulated/0/file.apk
-            pathList.add(path);
+            path0 = path;
+
 
             pathList.add(getPathWithIsolation(startWith, getStorageIsolationDir, path));
 
@@ -463,6 +480,8 @@ public class PraseContentUtil {
                 Log.e("shardUid", "" + shardUid);
                 pathList.add(getPathWithIsolation(startWith, "/Android/data/shared-" + shardUid + "/sdcard", path));
             }
+            pathList.add(getPathWithIsolation(startWith, getExternalFilesDir, path));
+            pathList.add(path0);
 
             return pathList;
         } else {

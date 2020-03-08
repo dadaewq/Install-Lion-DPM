@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:text="@string/start_deactivate"
+            android:text="@string/bt_start_deactivate"
             android:visibility="gone" />
     </LinearLayout>
 
@@ -75,7 +75,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
-                android:text="@string/SystemSettings"
+                android:text="@string/tv_systemSettings"
                 android:textSize="15sp" />
 
             <LinearLayout

@@ -6,9 +6,14 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.UserManager;
@@ -17,8 +22,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -31,7 +36,9 @@ import androidx.annotation.RequiresApi;
 
 import com.modosa.dpmapkinstaller.R;
 import com.modosa.dpmapkinstaller.receiver.AdminReceiver;
+import com.modosa.dpmapkinstaller.util.OpUtil;
 
+import java.util.List;
 import java.util.Objects;
 
 
@@ -39,17 +46,23 @@ import java.util.Objects;
  * @author dadaewq
  */
 public class SettingsActivity extends Activity {
+    public final int version_sdk = Build.VERSION.SDK_INT;
+    private final String sp_orgName = "orgName";
+    private final String sp_confirmWarning = "confirmWarning";
     private final String[] userRestrictionsKeys = {UserManager.DISALLOW_INSTALL_APPS, UserManager.DISALLOW_UNINSTALL_APPS, UserManager.DISALLOW_INSTALL_UNKNOWN_SOURCES};
     private boolean isSuccess = false;
     private String command;
     private DevicePolicyManager devicePolicyManager;
     private UserManager userManager;
-    private ComponentName componentName;
+    private ComponentName adminComponentName;
     private SharedPreferences sharedPreferences;
     private String orgName;
     private TextView showOrgName;
     private long exitTime = 0;
     private Switch[] switches;
+    private ComponentName[] allComponentName;
+    private CharSequence[] appInfo;
+    private ComponentName defaultApp;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -82,11 +95,25 @@ public class SettingsActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.HideIcon:
+                showDialogHideIcon();
+                break;
+            case R.id.ClearAllowedList:
+                showDialogClearAllowedList();
+                break;
+            case R.id.LockDefaultLauncher:
+            case R.id.LockDefaultPackageInstaller:
+                if (sharedPreferences.getBoolean(sp_confirmWarning, false)) {
+                    showDialogLockDefaultApplication(item.getItemId());
+                } else {
+                    showWarningLockDefaultApplication(item.getItemId());
+                }
+                break;
             case R.id.UserRestrictions:
                 showDialogUserRestriction();
                 break;
             case R.id.RebootDevice:
-                devicePolicyManager.reboot(componentName);
+                devicePolicyManager.reboot(adminComponentName);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -100,7 +127,7 @@ public class SettingsActivity extends Activity {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             long intervals = 2000;
             if ((System.currentTimeMillis() - exitTime) > intervals) {
-                Toast.makeText(getApplicationContext(), getString(R.string.exit_tip), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.tip_exit), Toast.LENGTH_SHORT).show();
                 exitTime = System.currentTimeMillis();
             } else {
                 finish();
@@ -114,20 +141,9 @@ public class SettingsActivity extends Activity {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void init() {
-        componentName = AdminReceiver.getComponentName(this);
-        StringBuilder stringBuilder;
+        adminComponentName = AdminReceiver.getComponentName(this);
 
-        String cPackageName = componentName.getPackageName();
-        String cClassName = componentName.getClassName();
-
-        if (cClassName.startsWith(cPackageName)) {
-            stringBuilder = new StringBuilder(cClassName);
-            stringBuilder.insert(cPackageName.length(), "/");
-        } else {
-            stringBuilder = new StringBuilder(componentName.flattenToString());
-        }
-
-        command = "adb shell dpm set-device-owner " + stringBuilder.toString();
+        command = OpUtil.getCommand(this);
 
         devicePolicyManager = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
         userManager = (UserManager) getSystemService(USER_SERVICE);
@@ -147,34 +163,31 @@ public class SettingsActivity extends Activity {
 
         sharedPreferences = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE);
 
+//        int i = 0;
+//        for (String key : userManager.getUserRestrictions().keySet()) {
+//            i++;
+//            Log.e("Bundle " + i, key + "");
+//        }
+
         if (isDeviceOwner()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                devicePolicyManager.setOrganizationName(componentName, sharedPreferences.getString("orgName", ""));
+                devicePolicyManager.setOrganizationName(adminComponentName, sharedPreferences.getString(sp_orgName, ""));
                 showOrgName.setVisibility(View.VISIBLE);
                 showOrgName.setOnClickListener(view -> editOrgName());
-                orgName = getString(R.string.show_OrgName) + ":" + sharedPreferences.getString("orgName", "");
+                orgName = getString(R.string.tv_showOrgName) + ":" + sharedPreferences.getString(sp_orgName, "");
                 showOrgName.setText(orgName);
 
             }
-            status.setText(getString(R.string.isDeviceOwner));
+            status.setText(getString(R.string.tv_is_deviceowner));
 
             cmd.setVisibility(View.GONE);
             releaseDeviceOwner.setVisibility(View.VISIBLE);
-            releaseDeviceOwner.setOnClickListener(view -> releaseDeviceOwner());
+            releaseDeviceOwner.setOnClickListener(view -> showDialogDeactivateDeviceOwner());
             scrollView.setVisibility(View.VISIBLE);
 
-            if (userManager.getUserRestrictions().isEmpty()) {
-                Log.e("UserRestrictions", "isEmpty ");
-            } else {
-                int i = 0;
-                for (String key : userManager.getUserRestrictions().keySet()) {
-                    i++;
-                    Log.e("Bundle " + i, key + "");
-                }
-            }
-
             refreshSwitch();
-            for (int i = 0; i < userRestrictionsKeys.length; i++) {
+            int i;
+            for (i = 0; i < userRestrictionsKeys.length; i++) {
                 int finalI = i;
 
                 linearLayouts[i].setOnClickListener(v -> {
@@ -196,29 +209,19 @@ public class SettingsActivity extends Activity {
             }
 
         } else {
-            if (userManager.getUserRestrictions().isEmpty()) {
-                Log.e("UserRestrictions", "isEmpty ");
-            } else {
-                int i = 0;
-                for (String key : userManager.getUserRestrictions().keySet()) {
-                    i++;
-                    Log.e("Bundle " + i, key + "");
-                }
-            }
 
-            status.setText(getString(R.string.notDeviceOwner));
+            status.setText(getString(R.string.tv_not_deviceowner));
             cmd.setOnClickListener(view -> copyCommand());
             cmd.setText(command);
-
         }
     }
 
     private void addUserRestrictions(String key) {
-        devicePolicyManager.addUserRestriction(componentName, key);
+        devicePolicyManager.addUserRestriction(adminComponentName, key);
     }
 
     private void clearUserRestrictions(String key) {
-        devicePolicyManager.clearUserRestriction(componentName, key);
+        devicePolicyManager.clearUserRestriction(adminComponentName, key);
     }
 
     private boolean checkUserRestriction(String key) {
@@ -244,9 +247,23 @@ public class SettingsActivity extends Activity {
         return devicePolicyManager.isDeviceOwnerApp(getPackageName());
     }
 
+    private void changeState(ComponentName c, boolean enable) {
+        PackageManager pm = this.getPackageManager();
+
+        int flag = PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+        if (enable) {
+            flag = PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+
+        }
+        pm.setComponentEnabledSetting(c,
+                flag,
+                PackageManager.DONT_KILL_APP);
+
+    }
+
     private void opUserRestriction(String key, int whichButton) {
         if ("".equals(key)) {
-            showToast0(R.string.empty_tip);
+            showToast0(R.string.tip_empty);
         } else {
             isSuccess = false;
             if (whichButton == AlertDialog.BUTTON_POSITIVE) {
@@ -267,19 +284,192 @@ public class SettingsActivity extends Activity {
         }
     }
 
+
+    private ComponentName getDefaultApplication(Intent intent) {
+
+        final ResolveInfo res = getPackageManager().resolveActivity(intent, 0);
+
+        if (res != null && res.activityInfo != null && !"android".equals(res.activityInfo.packageName)) {
+            return new ComponentName(res.activityInfo.packageName, res.activityInfo.name);
+        }
+        return null;
+    }
+
+    private void queryIntentActivities(Intent intent) {
+
+        defaultApp = getDefaultApplication(intent);
+
+        PackageManager packageManager = getPackageManager();
+        List<ResolveInfo> list = packageManager.queryIntentActivities(intent, 0);
+        int size = list.size();
+        allComponentName = new ComponentName[size];
+        appInfo = new CharSequence[size];
+
+
+        int i;
+        for (i = 0; i < size; i++) {
+            String packageName = list.get(i).activityInfo.packageName;
+            String activityName = list.get(i).activityInfo.name;
+            allComponentName[i] = new ComponentName(packageName, activityName);
+            appInfo[i] = list.get(i).activityInfo.loadLabel(packageManager) + "(" + packageName + ")";
+
+            if (allComponentName[i].equals(defaultApp)) {
+                appInfo[i] = new StringBuilder("* ").append(appInfo[i]);
+            }
+        }
+    }
+
+    private void showDialogHideIcon() {
+
+        View checkBoxView = View.inflate(this, R.layout.confirm_checkbox, null);
+        CheckBox checkBox = checkBoxView.findViewById(R.id.confirm_checkbox);
+        checkBox.setText(R.string.HideIcon);
+
+        ComponentName mainComponentName = new ComponentName(this, "com.modosa.dpmapkinstaller.activity.MainActivity");
+        PackageManager pm = getPackageManager();
+        boolean isEnabled = (pm.getComponentEnabledSetting(mainComponentName) == (PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) || pm.getComponentEnabledSetting(mainComponentName) == (PackageManager.COMPONENT_ENABLED_STATE_ENABLED));
+
+        checkBox.setChecked(!isEnabled);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.HideIcon)
+                .setMessage(R.string.message_HideIcon)
+                .setView(checkBoxView)
+                .setNeutralButton(android.R.string.no, null)
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> changeState(mainComponentName,
+                        !checkBox.isChecked()));
+
+        AlertDialog alertDialog = builder.create();
+
+
+        OpUtil.showAlertDialog(this, alertDialog);
+
+    }
+
+    private void showDialogClearAllowedList() {
+
+        View checkBoxView = View.inflate(this, R.layout.confirm_checkbox, null);
+        CheckBox checkBox = checkBoxView.findViewById(R.id.confirm_checkbox);
+        checkBox.setText(R.string.checkbox_ClearAllowedList);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.ClearAllowedList)
+                .setMessage(R.string.message_ClearAllowedList)
+                .setView(checkBoxView)
+                .setNeutralButton(android.R.string.no, null)
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    SharedPreferences.Editor editor = getSharedPreferences("allowsource", Context.MODE_PRIVATE).edit();
+                    editor.clear();
+                    editor.apply();
+                });
+
+        AlertDialog alertDialog = builder.create();
+
+
+        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(isChecked));
+
+        OpUtil.showAlertDialog(this, alertDialog);
+
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
+    }
+
+    private void showWarningLockDefaultApplication(int lockitemid) {
+        View checkBoxView = View.inflate(this, R.layout.confirm_checkbox, null);
+        CheckBox checkBox = checkBoxView.findViewById(R.id.confirm_checkbox);
+        checkBox.setText(R.string.checkbox_lockdefault);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.title_lockdefault)
+                .setMessage(R.string.message_lockdefault)
+                .setView(checkBoxView)
+                .setNeutralButton(android.R.string.no, null)
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(sp_confirmWarning, true);
+                    editor.apply();
+                    showDialogLockDefaultApplication(lockitemid);
+                });
+
+        AlertDialog alertDialog = builder.create();
+
+
+        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(isChecked));
+
+        OpUtil.showAlertDialog(this, alertDialog);
+
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
+    }
+
+    private void showDialogLockDefaultApplication(int itemid) {
+        Intent intent;
+        IntentFilter filter;
+        int titleid;
+        switch (itemid) {
+            case R.id.LockDefaultLauncher:
+                intent = new Intent(Intent.ACTION_MAIN)
+                        .addCategory(Intent.CATEGORY_HOME)
+                        .addCategory(Intent.CATEGORY_DEFAULT);
+
+                filter = new IntentFilter(Intent.ACTION_MAIN);
+                filter.addCategory(Intent.CATEGORY_HOME);
+                filter.addCategory(Intent.CATEGORY_DEFAULT);
+
+                titleid = R.string.LockDefaultLauncher;
+                break;
+            case R.id.LockDefaultPackageInstaller:
+                intent = new Intent(Intent.ACTION_VIEW)
+                        .setDataAndType(Uri.parse("content://test/0/test.apk"), "application/vnd.android.package-archive");
+
+                filter = new IntentFilter(Intent.ACTION_VIEW);
+                filter.addCategory(Intent.CATEGORY_DEFAULT);
+                filter.addDataScheme(ContentResolver.SCHEME_CONTENT);
+                try {
+                    filter.addDataType("application/vnd.android.package-archive");
+                } catch (IntentFilter.MalformedMimeTypeException e) {
+                    e.printStackTrace();
+                }
+
+                titleid = R.string.LockDefaultLauncher;
+                break;
+
+            default:
+                return;
+        }
+        queryIntentActivities(intent);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(titleid)
+                .setItems(appInfo, (dialog, which) -> {
+                    if (defaultApp != null) {
+                        devicePolicyManager.clearPackagePersistentPreferredActivities(adminComponentName, defaultApp.getPackageName());
+                    }
+                    devicePolicyManager.addPersistentPreferredActivity(adminComponentName, filter, allComponentName[which]);
+                    showToast0(appInfo[which].toString());
+                })
+                .setNeutralButton(R.string.close, null)
+                .setPositiveButton(R.string.clear_lock, (dialog, which) -> {
+                    if (defaultApp != null) {
+                        devicePolicyManager.clearPackagePersistentPreferredActivities(adminComponentName, defaultApp.getPackageName());
+                    }
+                });
+
+        AlertDialog alertDialog = builder.create();
+        OpUtil.showAlertDialog(this, alertDialog);
+    }
+
     private void showDialogUserRestriction() {
 
         final EditText keyOfRestriction = new EditText(this);
-        keyOfRestriction.setHint(R.string.restrictionkey_tip);
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
+        keyOfRestriction.setHint(R.string.hint_restrictionkey);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setTitle(R.string.UserRestrictions)
                 .setView(keyOfRestriction)
                 .setNeutralButton(R.string.close, null)
                 .setNegativeButton(R.string.clear, null)
-                .setPositiveButton(R.string.add, null)
-                .show();
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> opUserRestriction(keyOfRestriction.getText().toString().trim(), AlertDialog.BUTTON_POSITIVE));
-        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> opUserRestriction(keyOfRestriction.getText().toString().trim(), AlertDialog.BUTTON_NEGATIVE));
+                .setPositiveButton(R.string.add, null);
+
+        AlertDialog alertDialog = builder.create();
 
         alertDialog.setOnDismissListener(dialog -> {
             if (isSuccess) {
@@ -287,61 +477,65 @@ public class SettingsActivity extends Activity {
                 refreshSwitch();
             }
         });
-        Window window = alertDialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.Background)));
-        }
+
+        OpUtil.showAlertDialog(this, alertDialog);
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> opUserRestriction(keyOfRestriction.getText().toString().trim(), AlertDialog.BUTTON_POSITIVE));
+        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> opUserRestriction(keyOfRestriction.getText().toString().trim(), AlertDialog.BUTTON_NEGATIVE));
 
     }
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void editOrgName() {
-        String getOrgName = sharedPreferences.getString("orgName", "");
+        String getOrgName = sharedPreferences.getString(sp_orgName, "");
 
         final EditText inputname = new EditText(this);
         inputname.setText(getOrgName);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.show_OrgName)
+        builder.setTitle(R.string.tv_showOrgName)
                 .setView(inputname)
                 .setNegativeButton(android.R.string.no, null)
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("orgName", inputname.getText() + "");
+                    editor.putString(sp_orgName, inputname.getText() + "");
                     editor.apply();
-                    devicePolicyManager.setOrganizationName(componentName, sharedPreferences.getString("orgName", ""));
-                    orgName = getString(R.string.show_OrgName) + ":" + sharedPreferences.getString("orgName", "");
+                    devicePolicyManager.setOrganizationName(adminComponentName, sharedPreferences.getString(sp_orgName, ""));
+                    orgName = getString(R.string.tv_showOrgName) + ":" + sharedPreferences.getString(sp_orgName, "");
                     showOrgName.setText(orgName);
                 });
+
         AlertDialog alertDialog = builder.create();
-        Window window = alertDialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.Background)));
-        }
-        alertDialog.show();
+        OpUtil.showAlertDialog(this, alertDialog);
     }
 
-    private void releaseDeviceOwner() {
+    private void showDialogDeactivateDeviceOwner() {
+
+        View checkBoxView = View.inflate(this, R.layout.confirm_checkbox, null);
+        CheckBox checkBox = checkBoxView.findViewById(R.id.confirm_checkbox);
+        checkBox.setText(R.string.checkbox_deactivate);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.release_DPM)
-                .setMessage(R.string.release_tip)
+        builder.setTitle(R.string.title_deactivate)
+                .setMessage(R.string.message_deactivate)
+                .setView(checkBoxView)
                 .setNegativeButton(android.R.string.no, null)
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     if (clearDeviceOwner()) {
-                        showToast0(R.string.success_deactivate);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(sp_confirmWarning, false);
+                        editor.apply();
+                        showToast0(R.string.tip_success_deactivate);
                         finish();
                     } else {
-                        showToast0(R.string.failed_deactivate);
+                        showToast0(R.string.tip_failed_deactivate);
                     }
                 });
-        AlertDialog alertDialog = builder.create();
-        Window window = alertDialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.Background)));
-        }
-        alertDialog.show();
 
+        AlertDialog alertDialog = builder.create();
+        OpUtil.showAlertDialog(this, alertDialog);
+
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(isChecked));
     }
 
     private void refreshSwitch() {

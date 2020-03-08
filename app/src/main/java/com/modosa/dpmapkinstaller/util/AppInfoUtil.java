@@ -14,6 +14,9 @@ import android.os.Build;
 import static android.content.pm.PackageManager.GET_UNINSTALLED_PACKAGES;
 import static android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES;
 
+/**
+ * @author dadaewq
+ */
 public final class AppInfoUtil {
     public static final String UNINSTALLED = "IL^&UninstalledPN*@!128`+=：:,.[";
 
