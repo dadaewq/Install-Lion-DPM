@@ -33,7 +33,7 @@ public class OpUtil {
     public static void showAlertDialog(Context context, AlertDialog alertDialog) {
         Window window = alertDialog.getWindow();
         if (window != null) {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
                 window.setBackgroundDrawable(new ColorDrawable(context.getResources().getColor(R.color.Background, null)));
             } else {
                 window.setBackgroundDrawable(new ColorDrawable(context.getResources().getColor(R.color.Background)));
