@@ -52,6 +52,6 @@
     <string name="close">Close</string>
     <string name="tip_empty">The key Cannot be empty</string>
     <string name="title_lockdefault">Waring！</string>
-    <string name="message_lockdefault">Locking the default app is permanent, even after deactivating the device owner. Make sure to cancel unnecessary locks before deactivating the device Owner\n\n(reminder: locks cannot be made on some custom systems)\n</string>
+    <string name="message_lockdefault">Locking the default app is permanent, even after deactivating the device owner.\nMake sure to cancel unnecessary locks before deactivating the device qwner\n\n(reminder: locks cannot be made on some custom rom)\n</string>
     <string name="checkbox_lockdefault">I am fully aware and at my own risk</string>
 </resources>
