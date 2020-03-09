@@ -20,8 +20,8 @@
             android:id="@+id/status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp"
+            android:layout_marginStart="45dp"
+            android:layout_marginEnd="45dp"
             android:paddingTop="10dp"
             android:textAlignment="center"
             android:textSize="18sp" />
@@ -37,14 +37,6 @@
             android:paddingTop="10dp"
             android:textIsSelectable="true"
             android:textSize="15sp" />
-
-        <TextView
-            android:id="@+id/showOrgName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:textSize="18sp"
-            android:visibility="gone" />
 
         <Button
             android:id="@+id/releasedpm"
@@ -66,6 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+
             android:paddingStart="20dp"
             android:paddingTop="10dp"
             android:paddingEnd="15dp"
@@ -93,7 +86,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_weight="0.5" />
 
                 <Switch
                     android:id="@+id/switch0"
@@ -117,7 +110,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_weight="0.5" />
 
                 <Switch
                     android:id="@+id/switch1"
@@ -141,7 +134,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_weight="0.5" />
 
                 <Switch
                     android:id="@+id/switch2"

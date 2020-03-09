@@ -1,5 +1,6 @@
 package com.modosa.dpmapkinstaller.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
@@ -55,8 +56,6 @@ public class SettingsActivity extends Activity {
     private UserManager userManager;
     private ComponentName adminComponentName;
     private SharedPreferences sharedPreferences;
-    private String orgName;
-    private TextView showOrgName;
     private long exitTime = 0;
     private Switch[] switches;
     private ComponentName[] allComponentName;
@@ -73,6 +72,7 @@ public class SettingsActivity extends Activity {
         init();
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (isDeviceOwner()) {
@@ -84,9 +84,17 @@ public class SettingsActivity extends Activity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        if (isDeviceOwner() && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            menu.findItem(R.id.RebootDevice).setVisible(false);
+        if (isDeviceOwner()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                menu.findItem(R.id.RebootDevice).setVisible(true);
+                menu.findItem(R.id.SetLockScreenInfo).setVisible(true);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                menu.findItem(R.id.SetOrganizationName).setVisible(true);
+            }
         }
+
+
         return true;
     }
 
@@ -99,6 +107,12 @@ public class SettingsActivity extends Activity {
                 break;
             case R.id.ClearAllowedList:
                 showDialogClearAllowedList();
+                break;
+            case R.id.SetOrganizationName:
+                showDialogSetOrganizationName();
+                break;
+            case R.id.SetLockScreenInfo:
+                showDialogSetLockScreenInfo();
                 break;
             case R.id.LockDefaultLauncher:
             case R.id.LockDefaultPackageInstaller:
@@ -126,7 +140,7 @@ public class SettingsActivity extends Activity {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             long intervals = 2000;
             if ((System.currentTimeMillis() - exitTime) > intervals) {
-                Toast.makeText(getApplicationContext(), getString(R.string.tip_exit), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.tip_exit), Toast.LENGTH_SHORT).show();
                 exitTime = System.currentTimeMillis();
             } else {
                 finish();
@@ -148,7 +162,6 @@ public class SettingsActivity extends Activity {
         userManager = (UserManager) getSystemService(USER_SERVICE);
         TextView status = findViewById(R.id.status);
         TextView cmd = findViewById(R.id.cmd);
-        showOrgName = findViewById(R.id.showOrgName);
         Button releaseDeviceOwner = findViewById(R.id.releasedpm);
         ScrollView scrollView = findViewById(R.id.Extrafunction);
         switches = new Switch[userRestrictionsKeys.length];
@@ -169,14 +182,6 @@ public class SettingsActivity extends Activity {
 //        }
 
         if (isDeviceOwner()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                devicePolicyManager.setOrganizationName(adminComponentName, sharedPreferences.getString(sp_orgName, ""));
-                showOrgName.setVisibility(View.VISIBLE);
-                showOrgName.setOnClickListener(view -> editOrgName());
-                orgName = getString(R.string.tv_showOrgName) + ":" + sharedPreferences.getString(sp_orgName, "");
-                showOrgName.setText(orgName);
-
-            }
             status.setText(getString(R.string.tv_is_deviceowner));
 
             cmd.setVisibility(View.GONE);
@@ -372,6 +377,76 @@ public class SettingsActivity extends Activity {
 
     }
 
+    @SuppressLint("SetTextI18n")
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void showDialogSetOrganizationName() {
+        String getOrgName = sharedPreferences.getString(sp_orgName, "");
+        final EditText editOraName = new EditText(this);
+        editOraName.setText(getOrgName);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.title_SetOrganizationName)
+                .setView(editOraName)
+                .setNeutralButton(R.string.close, null)
+                .setNegativeButton(R.string.clear, (dialog, which) -> {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(sp_orgName, null);
+                    editor.apply();
+                    devicePolicyManager.setOrganizationName(adminComponentName, null);
+                })
+                .setPositiveButton(R.string.set, (dialog, which) -> {
+                    String getEditName = editOraName.getText().toString() + "";
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(sp_orgName, getEditName);
+                    editor.apply();
+                    Toast.makeText(this, getEditName, Toast.LENGTH_SHORT).show();
+                    devicePolicyManager.setOrganizationName(adminComponentName, getEditName);
+                });
+
+        AlertDialog alertDialog = builder.create();
+
+        alertDialog.setOnDismissListener(dialog -> {
+            if (isSuccess) {
+                isSuccess = false;
+                refreshSwitch();
+            }
+        });
+
+        OpUtil.showAlertDialog(this, alertDialog);
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void showDialogSetLockScreenInfo() {
+
+        final EditText editInfo = new EditText(this);
+        CharSequence getLockScreenInfo = devicePolicyManager.getDeviceOwnerLockScreenInfo();
+        if (getLockScreenInfo == null) {
+            editInfo.setHint("");
+        } else {
+            editInfo.setText(getLockScreenInfo);
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.title_SetLockScreenInfo)
+                .setView(editInfo)
+                .setNeutralButton(R.string.close, null)
+                .setNegativeButton(R.string.clear, (dialog, which) -> devicePolicyManager.setDeviceOwnerLockScreenInfo(adminComponentName, null))
+                .setPositiveButton(R.string.set, (dialog, which) -> devicePolicyManager.setDeviceOwnerLockScreenInfo(adminComponentName, editInfo.getText().toString()));
+
+        AlertDialog alertDialog = builder.create();
+
+        alertDialog.setOnDismissListener(dialog -> {
+            if (isSuccess) {
+                isSuccess = false;
+                refreshSwitch();
+            }
+        });
+
+        OpUtil.showAlertDialog(this, alertDialog);
+
+    }
+
     private void showWarningLockDefaultApplication(int lockitemid) {
         View checkBoxView = View.inflate(this, R.layout.confirm_checkbox, null);
         CheckBox checkBox = checkBoxView.findViewById(R.id.confirm_checkbox);
@@ -484,29 +559,6 @@ public class SettingsActivity extends Activity {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void editOrgName() {
-        String getOrgName = sharedPreferences.getString(sp_orgName, "");
-
-        final EditText inputname = new EditText(this);
-        inputname.setText(getOrgName);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.tv_showOrgName)
-                .setView(inputname)
-                .setNegativeButton(android.R.string.no, null)
-                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString(sp_orgName, inputname.getText() + "");
-                    editor.apply();
-                    devicePolicyManager.setOrganizationName(adminComponentName, sharedPreferences.getString(sp_orgName, ""));
-                    orgName = getString(R.string.tv_showOrgName) + ":" + sharedPreferences.getString(sp_orgName, "");
-                    showOrgName.setText(orgName);
-                });
-
-        AlertDialog alertDialog = builder.create();
-        OpUtil.showAlertDialog(this, alertDialog);
-    }
-
     private void showDialogDeactivateDeviceOwner() {
 
         View checkBoxView = View.inflate(this, R.layout.confirm_checkbox, null);
@@ -517,7 +569,7 @@ public class SettingsActivity extends Activity {
         builder.setTitle(R.string.title_deactivate)
                 .setMessage(R.string.message_deactivate)
                 .setView(checkBoxView)
-                .setNegativeButton(android.R.string.no, null)
+                .setNeutralButton(android.R.string.no, null)
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                     if (clearDeviceOwner()) {
                         SharedPreferences.Editor editor = sharedPreferences.edit();

@@ -25,7 +25,6 @@
     <string name="tip_failed_deactivate">无法取消</string>
     <string name="tv_is_deviceowner">✔ 当前是 设备管理员</string>
     <string name="tv_not_deviceowner">✘ 当前不是 设备管理员</string>
-    <string name="tv_showOrgName">对外显示的组织名称</string>
     <string name="title_deactivate">解除设备管理员权限</string>
     <string name="message_deactivate">\n此操作不可撤销\n\n请确保已取消锁定不必要的默认应用\n</string>
     <string name="checkbox_deactivate">确认解除</string>
@@ -42,6 +41,10 @@
     <string name="ClearAllowedList">清空允许安装列表</string>
     <string name="checkbox_ClearAllowedList">确认清空</string>
     <string name="message_ClearAllowedList">\n清空安装前无需确认的应用列表\n</string>
+    <string name="SetOrganizationName">设置组织名称</string>
+    <string name="title_SetOrganizationName">设置对外显示的组织名称</string>
+    <string name="SetLockScreenInfo">设置锁屏信息</string>
+    <string name="title_SetLockScreenInfo">设置显示在锁屏的信息</string>
     <string name="LockDefaultLauncher">锁定默认桌面</string>
     <string name="LockDefaultPackageInstaller">锁定默认安装器</string>
     <string name="UserRestrictions">修改用户限制</string>
@@ -49,6 +52,7 @@
     <string name="hint_restrictionkey">请输入限制关键字</string>
     <string name="add">增加</string>
     <string name="clear">清除</string>
+    <string name="set">设置</string>
     <string name="clear_lock">清除锁定</string>
     <string name="close">关闭</string>
     <string name="tip_empty">关键字不可为空</string>
