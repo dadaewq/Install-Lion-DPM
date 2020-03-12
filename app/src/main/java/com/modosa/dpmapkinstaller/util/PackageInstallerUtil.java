@@ -105,6 +105,7 @@ public class PackageInstallerUtil {
                 int statusCode = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE);
                 if (statusCode != PackageInstaller.STATUS_SUCCESS) {
                     String message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
+
                     if (TextUtils.isEmpty(message)) {
                         stringBuilder.append(context.getString(R.string.unknown));
                     } else {

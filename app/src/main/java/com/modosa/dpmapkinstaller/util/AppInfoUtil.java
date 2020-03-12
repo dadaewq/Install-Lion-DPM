@@ -51,20 +51,13 @@ public final class AppInfoUtil {
         }
 
         if (applicationInfo != null) {
-            PackageInfo pkgInfo = pm.getPackageArchiveInfo(applicationInfo.sourceDir, PackageManager.GET_ACTIVITIES);
-            if (pkgInfo != null) {
-                return new String[]{
-                        pkgInfo.versionName,
-                        Build.VERSION.SDK_INT < Build.VERSION_CODES.P ? Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode())
-                };
-            } else {
-                return null;
-            }
-        } else {
-            return null;
+            return getApkVersion(context, applicationInfo.sourceDir);
         }
+        return null;
+
 
     }
+
 
     public static Bitmap getApplicationIcon(Context context, String pkgName) {
         PackageManager pm = context.getPackageManager();
@@ -97,28 +90,41 @@ public final class AppInfoUtil {
                     pm.getApplicationLabel(pkgInfo.applicationInfo).toString(),
                     pkgInfo.packageName,
                     pkgInfo.versionName,
-                    Build.VERSION.SDK_INT < Build.VERSION_CODES.P ? Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode()),
-                    FileSizeUtil.getAutoFolderOrFileSize(apkPath)
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.P ? Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode()), FileSizeUtil.getAutoFolderOrFileSize(apkPath)
             };
         } else {
             return null;
         }
     }
 
+    public static String[] getApkVersion(Context context, String apkPath) {
+        PackageManager pm = context.getPackageManager();
+        PackageInfo pkgInfo = pm.getPackageArchiveInfo(apkPath, PackageManager.GET_ACTIVITIES);
 
-//    public static Bitmap getApkIcon(Context context, String apkPath) {
-//        PackageManager pm = context.getPackageManager();
-//        PackageInfo pkgInfo = pm.getPackageArchiveInfo(apkPath, PackageManager.GET_ACTIVITIES);
-//
-//        if (pkgInfo != null) {
-//            pkgInfo.applicationInfo.sourceDir = apkPath;
-//            pkgInfo.applicationInfo.publicSourceDir = apkPath;
-//
-//            return drawable2Bitmap(pkgInfo.applicationInfo.loadIcon(pm));
-//        } else {
-//            return null;
-//        }
-//    }
+        if (pkgInfo != null) {
+            pkgInfo.applicationInfo.sourceDir = apkPath;
+            pkgInfo.applicationInfo.publicSourceDir = apkPath;
+
+            return new String[]{
+                    pkgInfo.versionName,
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.P ? Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode()), FileSizeUtil.getAutoFolderOrFileSize(apkPath)
+            };
+        } else {
+            return null;
+        }
+    }
+
+    public static Bitmap getApkIcon(Context context, String apkPath) {
+        PackageManager pm = context.getPackageManager();
+        PackageInfo pkgInfo = pm.getPackageArchiveInfo(apkPath, PackageManager.GET_ACTIVITIES);
+        if (pkgInfo != null) {
+            ApplicationInfo applicationInfo = pkgInfo.applicationInfo;
+            pkgInfo.applicationInfo.sourceDir = apkPath;
+            pkgInfo.applicationInfo.publicSourceDir = apkPath;
+            return drawable2Bitmap(applicationInfo.loadIcon(pm));
+        }
+        return null;
+    }
 
     private static Bitmap drawable2Bitmap(Drawable drawable) {
 

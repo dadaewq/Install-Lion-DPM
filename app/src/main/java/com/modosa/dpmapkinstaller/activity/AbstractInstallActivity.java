@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -42,18 +43,20 @@ public abstract class AbstractInstallActivity extends Activity {
     private final String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
     private final String nl = System.getProperty("line.separator");
     private final boolean ltsdk23 = Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
+    String pkgName;
     String[] apkinfo;
     String packageLable;
     StringBuilder alertDialogMessage;
     File apkFile;
+    boolean show_notification;
     private boolean istemp = false;
     private String[] source;
     private Uri uri;
     private SharedPreferences sourceSp;
+    private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
     private AlertDialog alertDialog;
     private String cachePath;
-    private String pkgName;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,7 +72,7 @@ public abstract class AbstractInstallActivity extends Activity {
             }
         } else {
             uri = getIntent().getData();
-
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
             sourceSp = getSharedPreferences("allowsource", Context.MODE_PRIVATE);
             if (checkPermission()) {
                 initInstall();
@@ -133,6 +136,8 @@ public abstract class AbstractInstallActivity extends Activity {
 
     private void initInstall() {
         source = checkInstallSource();
+        boolean needconfirm = sharedPreferences.getBoolean("needconfirm", true);
+        show_notification = sharedPreferences.getBoolean("show_notification", false);
         boolean allowsource = sourceSp.getBoolean(source[0], false);
         String apkPath = preInstall();
         cachePath = apkPath;
@@ -141,10 +146,17 @@ public abstract class AbstractInstallActivity extends Activity {
             showToast0(R.string.tip_failed_prase);
             finish();
         } else {
+
             if (ltsdk23) {
                 deleteCache();
             } else {
-                if (!source[1].equals(ILLEGALPKGNAME) && allowsource) {
+                if (needconfirm) {
+                    if (!source[1].equals(ILLEGALPKGNAME) && allowsource) {
+                        startInstall(apkPath);
+                        finish();
+                        return;
+                    }
+                } else {
                     startInstall(apkPath);
                     finish();
                     return;
@@ -203,14 +215,7 @@ public abstract class AbstractInstallActivity extends Activity {
 
             if (ltsdk23) {
                 checkBox.setEnabled(false);
-            } else {
-                checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                    editor = sourceSp.edit();
-                    editor.putBoolean(source[0], isChecked);
-                    editor.apply();
-                });
             }
-
 
             if (source[1].equals(ILLEGALPKGNAME)) {
                 checkBox.setText(R.string.checkbox_installsource_unkonwn);
@@ -230,6 +235,11 @@ public abstract class AbstractInstallActivity extends Activity {
                             showToast1(R.string.tip_ltsdk23);
                         } else {
                             cachePath = null;
+                            if (!source[1].equals(ILLEGALPKGNAME)) {
+                                editor = sourceSp.edit();
+                                editor.putBoolean(source[0], checkBox.isChecked());
+                                editor.apply();
+                            }
                             startInstall(apkPath);
                         }
                         finish();
@@ -241,6 +251,7 @@ public abstract class AbstractInstallActivity extends Activity {
             alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(20);
             alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(20);
         }
+
     }
 
     private String[] checkInstallSource() {

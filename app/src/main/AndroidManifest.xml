@@ -39,6 +39,7 @@
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
             </intent-filter>
         </activity>
+
         <activity-alias
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
@@ -78,11 +79,23 @@
         </activity>
 
         <activity
+            android:name=".activity.NotifyActivity"
+            android:noHistory="true"
+            android:theme="@style/Translucent">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".activity.LaunchActivity"
             android:enabled="true"
             android:exported="true"
             android:label="@string/launch_name"
-            android:noHistory="true">
+            android:noHistory="true"
+            android:theme="@style/Translucent">
             <intent-filter>
                 <action android:name="android.intent.action.SHOW_APP_INFO" />
 
@@ -93,7 +106,7 @@
         <activity-alias
             android:name=".activity.ShowAppInfoActivity"
             android:exported="false"
-            android:label="@string/app_name"
+            android:label="@string/launch_name"
             android:targetActivity=".activity.LaunchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SHOW_APP_INFO" />

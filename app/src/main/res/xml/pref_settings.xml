@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="show_notification"
+        android:summary="@string/show_tip"
+        android:title="@string/show_title" />
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="needconfirm"
+        android:summaryOff="@string/summary_off_needconfirm"
+        android:summaryOn="@string/summary_on_needconfirm"
+        android:title="@string/confirm_title" />
+    <Preference
+        android:key="show_deviceowner_state"
+        android:title="@string/title_not_deviceowner" />
+</PreferenceScreen>

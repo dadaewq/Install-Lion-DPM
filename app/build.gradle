@@ -8,8 +8,8 @@ android {
         applicationId "com.modosa.dpmapkinstaller"
         minSdkVersion 22
         targetSdkVersion 29
-        versionCode 12
-        versionName "1.91"
+        versionCode 13
+        versionName "2.0"
     }
 
     buildTypes {

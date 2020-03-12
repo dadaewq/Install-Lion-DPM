@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">安装狮-DPM</string>
+    <string name="channalname_fail">安装失败</string>
     <string name="tip_start_install">开始安装  %1$s</string>
     <string name="tip_failed_prase">无法解析</string>
     <string name="tip_failed_read">读取apk失败</string>
+    <string name="tip_failed_install">%1$s 安装失败</string>
     <string name="tip_success_install"> %1$s 安装成功</string>
-    <string name="tip_failed_install">%1$s 安装失败,错误已复制到剪贴板\n%2$s</string>
+    <string name="tip_failed_install_witherror">%1$s 安装失败,错误已复制到剪贴板\n%2$s</string>
     <string name="tip_success_uninstall">%1$s 卸载成功</string>
-    <string name="tip_failed_uninstall">%1$s 卸载失败,错误已复制到剪贴板\n%2$s</string>
+    <string name="tip_failed_uninstall_witherror">%1$s 卸载失败,错误已复制到剪贴板\n%2$s</string>
     <string name="tip_ltsdk23">仅支持Android6.0及以上设备</string>
     <string name="title_dialog_install">安装</string>
     <string name="title_dialog_uninstall">卸载</string>
@@ -19,20 +21,20 @@
     <string name="message_irrevocableConfirm">此操作不可撤销</string>
     <string name="checkbox_always_allow">总是允许 %1$s</string>
     <string name="checkbox_installsource_unkonwn">未知安装来源</string>
-    <string name="bt_start_deactivate">取消激活</string>
     <string name="tip_start_activating">尝试激活中</string>
     <string name="tip_success_deactivate">解除成功</string>
     <string name="tip_failed_deactivate">无法取消</string>
-    <string name="tv_is_deviceowner">✔ 当前是 设备管理员</string>
-    <string name="tv_not_deviceowner">✘ 当前不是 设备管理员</string>
-    <string name="title_deactivate">解除设备管理员权限</string>
+    <string name="title_is_deviceowner">当前是 设备管理员</string>
+    <string name="title_not_deviceowner">当前不是 设备管理员</string>
+    <string name="summary_clicktocopycmd">\n%1$s\n(点击可复制)</string>
+    <string name="title_deactivate_deviceowner">解除设备管理员权限</string>
     <string name="message_deactivate">\n此操作不可撤销\n\n请确保已取消锁定不必要的默认应用\n</string>
     <string name="checkbox_deactivate">确认解除</string>
     <string name="tip_exit">再按一次退出程序</string>
     <string name="installer_device">设备</string>
     <string name="launch_name">启动应用</string>
     <string name="unknown">未知</string>
-    <string name="tv_systemSettings">系统设置：</string>
+    <string name="title_systemSettings">系统设置</string>
     <string name="DISALLOW_INSTALL_APPS">禁止安装应用</string>
     <string name="DISALLOW_UNINSTALL_APPS">禁止卸载应用</string>
     <string name="DISALLOW_INSTALL_UNKNOWN_SOURCES">禁止安装未知来源应用</string>
@@ -41,14 +43,19 @@
     <string name="ClearAllowedList">清空允许安装列表</string>
     <string name="checkbox_ClearAllowedList">确认清空</string>
     <string name="message_ClearAllowedList">\n清空安装前无需确认的应用列表\n</string>
+    <string name="RebootDevice">立即重启设备</string>
+    <string name="OtherSettings">其他设置</string>
+    <string name="title_lockDefaultApp">锁定默认应用</string>
+    <string name="title_others">其他</string>
+    <string name="title_display">显示</string>
     <string name="SetOrganizationName">设置组织名称</string>
     <string name="title_SetOrganizationName">设置对外显示的组织名称</string>
     <string name="SetLockScreenInfo">设置锁屏信息</string>
     <string name="title_SetLockScreenInfo">设置显示在锁屏的信息</string>
     <string name="LockDefaultLauncher">锁定默认桌面</string>
     <string name="LockDefaultPackageInstaller">锁定默认安装器</string>
-    <string name="UserRestrictions">修改用户限制</string>
-    <string name="RebootDevice">立即重启设备</string>
+    <string name="EnableBackupService">启用系统备份</string>
+    <string name="SetUserRestrictions">设置用户限制</string>
     <string name="hint_restrictionkey">请输入限制关键字</string>
     <string name="add">增加</string>
     <string name="clear">清除</string>
@@ -59,4 +66,14 @@
     <string name="title_lockdefault">警告！</string>
     <string name="message_lockdefault">锁定默认应用是永久生效的，即使在取消激活设备管理员后。\n在取消激活设备管理员前请确保取消不必要的锁定。\n\n(提醒：在部分定制系统上无法锁定)\n</string>
     <string name="checkbox_lockdefault">我已经充分知晓并自行承担风险</string>
+
+
+    <string name="show_tip">安装结束后显示通知，点击通知可打开应用</string>
+    <string name="show_title">显示通知</string>
+    <string name="summary_off_needconfirm">始终不显示安装前确认的对话框</string>
+    <string name="summary_on_needconfirm">用户选择安装前无需确认的应用</string>
+
+    <string name="confirm_title">安装前确认</string>
+
+    <string name="click_run"> %1$s, 点击打开应用</string>
 </resources>
